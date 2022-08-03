@@ -55,7 +55,7 @@ if not exist "%downloadbinary%" (
 	mkdir "%basedir%\data\sources\emmcdl" > nul 2>&1
 	if not exist "%basedir%\data\sources\emmcdl" powershell -noprofile -command ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/sources/emmcdl.zip -target '%TMPDIR%\emmcdl.zip';" ^
+	"Download-Manager -uri %repos%/raw/master/data/sources/emmcdl.zip -target '%TMPDIR%\emmcdl.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\emmcdl.zip' -destinationpath '%basedir%\data\sources\emmcdl\';" ^
 	"Remove-Item -force '%TMPDIR%\emmcdl.zip'"
 	cd "%basedir%\data\sources\emmcdl"
@@ -201,9 +201,9 @@ set "current_time=%DATE:~0,2%_%DATE:~3,2%_%DATE:~6,4%__%TIME:~0,2%_%TIME:~3,2%_%
 
 powershell -noprofile -command ^
 "Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-"Download-Manager -uri %repos%/raw/additional/data/loader/%SHORT_BRAND%/%firehosefile% -target '%TMPDIR%\%firehosefile%';" ^
-"Download-Manager -uri %repos%/raw/additional/data/xml/boot.xml -target '%TMPDIR%\boot.xml';" ^
-"Download-Manager -uri %repos%/raw/additional/data/xml/patch.xml -target '%TMPDIR%\patch.xml'"
+"Download-Manager -uri %repos%/raw/master/data/loader/%SHORT_BRAND%/%firehosefile% -target '%TMPDIR%\%firehosefile%';" ^
+"Download-Manager -uri %repos%/raw/master/data/xml/boot.xml -target '%TMPDIR%\boot.xml';" ^
+"Download-Manager -uri %repos%/raw/master/data/xml/patch.xml -target '%TMPDIR%\patch.xml'"
 
 mkdir "%basedir%\data\backup" > nul 2>&1
 
@@ -404,7 +404,7 @@ set "ALREADY=1" || (
 	echo Installing Qualcomm HS-USB QLoader driver . . .
 	if not exist "%basedir%\data\drivers\qcser" powershell -noprofile -command ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/drivers/qcser.zip -target '%TMPDIR%\qcser.zip';" ^
+	"Download-Manager -uri %repos%/raw/master/data/drivers/qcser.zip -target '%TMPDIR%\qcser.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\qcser.zip' -destinationpath '%basedir%\data\drivers\qcser\'"
 
 	powershell -noprofile -command ^
@@ -422,7 +422,7 @@ set "ALREADY=1" || (
 	echo Installing Android Debug Bridge USB driver . . .
 	if not exist "%basedir%\data\drivers\adb_usb" powershell -noprofile -command ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/drivers/adb_usb.zip -target '%TMPDIR%\adb_usb.zip';" ^
+	"Download-Manager -uri %repos%/raw/master/data/drivers/adb_usb.zip -target '%TMPDIR%\adb_usb.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\adb_usb.zip' -destinationpath '%basedir%\data\drivers\adb_usb\'"
 
 	powershell -noprofile -command ^
@@ -1417,7 +1417,7 @@ if [ ! -x "$downloadbinary" ] ; then
 	done
 
 	[ -d "$basedir/data/sources/emmcdl" ] || {
-		wget -qO /var/tmp/emmcdl.zip $repos/raw/additional/data/sources/emmcdl.zip
+		wget -qO /var/tmp/emmcdl.zip $repos/raw/master/data/sources/emmcdl.zip
 		unzip -q /var/tmp/emmcdl.zip -d "$basedir/data/sources/emmcdl"
 	}
 	[ -d "$basedir/data/sources/emmcdl" ] && cd "$basedir/data/sources/emmcdl"
@@ -1471,9 +1471,9 @@ execution() {
 
 	get_partition
 
-	wget -qO "$TMPDIR/$firehosefile" $repos/raw/additional/data/loader/$SHORT_BRAND/$firehosefile
-	wget -qO "$TMPDIR/boot.xml" $repos/raw/additional/data/xml/boot.xml
-	wget -qO "$TMPDIR/patch.xml" $repos/raw/additional/data/xml/patch.xml
+	wget -qO "$TMPDIR/$firehosefile" $repos/raw/master/data/loader/$SHORT_BRAND/$firehosefile
+	wget -qO "$TMPDIR/boot.xml" $repos/raw/master/data/xml/boot.xml
+	wget -qO "$TMPDIR/patch.xml" $repos/raw/master/data/xml/patch.xml
 	mkdir -p "$basedir/data/backup" >/dev/null 2>&1
 
 	firehose="$TMPDIR/$firehosefile"
