@@ -1,5 +1,6 @@
 # TFF/QC Tools
 Unlock and flash the Android phone device
+
 <img src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/> <img src="assets/resources/images/command_line.png" alt="Command Line mode" width="50%"/>
 
 ## How to using this script:
@@ -77,8 +78,8 @@ This script developed by Faizal Hamzah [The Firefox Flasher].
 Licensed under the MIT License.
 
 Credits:
-    [nijel8](https://github.com/nijel8)            Developer of emmcdl
-    [bkerler](https://github.com/bkerler)           Developer of Qualcomm Firehose Attacker
-    [Hari Sulteng](https://fb.com/haryflasher)      Owner of Qualcomm GSM Sulteng
-    [Hadi Khoirudin](https://fb.com/f.hadikhoir)    Software engineer
+    nijel8            Developer of emmcdl
+    bkerler           Developer of Qualcomm Firehose Attacker
+    Hari Sulteng      Owner of Qualcomm GSM Sulteng
+    Hadi Khoirudin    Software engineer
 ```
