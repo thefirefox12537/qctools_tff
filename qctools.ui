@@ -2,49 +2,46 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>982</width>
-    <height>602</height>
+    <width>1024</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>982</width>
-    <height>602</height>
+    <width>1024</width>
+    <height>652</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>982</width>
-    <height>602</height>
+    <width>1024</width>
+    <height>652</height>
    </size>
   </property>
   <property name="sizeIncrement">
    <size>
-    <width>982</width>
-    <height>602</height>
+    <width>1024</width>
+    <height>652</height>
    </size>
   </property>
   <property name="baseSize">
    <size>
-    <width>982</width>
-    <height>602</height>
+    <width>1024</width>
+    <height>652</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Qualcomm Flasher Tools</string>
+   <string notr="true">Qualcomm Flasher Tools  -  GUI mode</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -54,89 +51,79 @@
    <enum>QTabWidget::Rounded</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="menu_tab">
+   <widget class="QTabWidget" name="tab">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>12</y>
-      <width>961</width>
-      <height>551</height>
+      <y>10</y>
+      <width>1001</width>
+      <height>601</height>
      </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true"/>
     </property>
     <property name="tabPosition">
      <enum>QTabWidget::South</enum>
     </property>
-    <property name="tabShape">
-     <enum>QTabWidget::Rounded</enum>
+    <property name="documentMode">
+     <bool>true</bool>
     </property>
-    <property name="currentIndex">
-     <number>2</number>
-    </property>
-    <property name="elideMode">
-     <enum>Qt::ElideNone</enum>
-    </property>
-    <widget class="QWidget" name="unlockmenu">
+    <widget class="QWidget" name="UnlockerMenu">
+     <property name="statusTip">
+      <string notr="true"/>
+     </property>
+     <property name="whatsThis">
+      <string notr="true"/>
+     </property>
+     <property name="accessibleName">
+      <string notr="true"/>
+     </property>
+     <property name="accessibleDescription">
+      <string notr="true"/>
+     </property>
      <attribute name="title">
-      <string>Unlocker</string>
+      <string notr="true">Unlocker</string>
      </attribute>
-     <widget class="QListView" name="log_1">
+     <widget class="QComboBox" name="port_list_1">
       <property name="geometry">
        <rect>
-        <x>577</x>
-        <y>50</y>
-        <width>371</width>
-        <height>451</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(119, 118, 123); color: rgb(222, 221, 218);</string>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="comboBox_4">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>14</y>
-        <width>291</width>
-        <height>24</height>
+        <x>588</x>
+        <y>7</y>
+        <width>321</width>
+        <height>31</height>
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_15">
+     <widget class="QPushButton" name="refresh_port_1">
       <property name="geometry">
        <rect>
-        <x>877</x>
-        <y>14</y>
-        <width>71</width>
-        <height>24</height>
+        <x>916</x>
+        <y>7</y>
+        <width>81</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Refresh</string>
+       <string notr="true">Re&amp;fresh</string>
       </property>
      </widget>
      <widget class="QTabWidget" name="brand_tab">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>561</width>
-        <height>491</height>
+        <x>7</x>
+        <y>7</y>
+        <width>571</width>
+        <height>541</height>
        </rect>
       </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="oppo">
+      <widget class="QWidget" name="oppo_menu">
        <attribute name="title">
-        <string>Oppo</string>
+        <string notr="true">Oppo</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QScrollArea" name="scrollArea">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -145,120 +132,130 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>250</width>
-             <height>684</height>
+             <width>269</width>
+             <height>488</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QLabel" name="device_oppo_label">
               <property name="text">
-               <string>Oppo A33</string>
+               <string notr="true">Devices list:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QRadioButton" name="a33">
               <property name="text">
-               <string>Oppo A53</string>
+               <string notr="true">Oppo A33</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QRadioButton" name="a53">
               <property name="text">
-               <string>Oppo A53s</string>
+               <string notr="true">Oppo A53</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QRadioButton" name="a53s">
               <property name="text">
-               <string>Oppo A73</string>
+               <string notr="true">Oppo A53s</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QRadioButton" name="a73">
               <property name="text">
-               <string>Oppo A74</string>
+               <string notr="true">Oppo A73</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_68">
+             <widget class="QRadioButton" name="a74">
               <property name="text">
-               <string>Oppo A76</string>
+               <string notr="true">Oppo A74</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QRadioButton" name="a76">
               <property name="text">
-               <string>Oppo A95</string>
+               <string notr="true">Oppo A76</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_8">
+             <widget class="QRadioButton" name="a95">
               <property name="text">
-               <string>Oppo F17</string>
+               <string notr="true">Oppo A95</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_9">
+             <widget class="QRadioButton" name="f17">
               <property name="text">
-               <string>Oppo F19</string>
+               <string notr="true">Oppo F17</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_69">
+             <widget class="QRadioButton" name="f19">
               <property name="text">
-               <string>Oppo F21 Pro</string>
+               <string notr="true">Oppo F19</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_10">
+             <widget class="QRadioButton" name="f21pro">
               <property name="text">
-               <string>Oppo Reno4 (Old security)</string>
+               <string notr="true">Oppo F21 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_70">
+             <widget class="QRadioButton" name="reno4_oldsec">
               <property name="text">
-               <string>Oppo Reno4 (New security)</string>
+               <string notr="true">Oppo Reno4 (Old security)</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_71">
+             <widget class="QRadioButton" name="reno4_newsec">
               <property name="text">
-               <string>Oppo Reno4 Pro</string>
+               <string notr="true">Oppo Reno4 (New security)</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_11">
+             <widget class="QRadioButton" name="reno4pro">
               <property name="text">
-               <string>Oppo Reno5</string>
+               <string notr="true">Oppo Reno4 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_12">
+             <widget class="QRadioButton" name="reno5">
               <property name="text">
-               <string>Oppo Reno6</string>
+               <string notr="true">Oppo Reno5</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_72">
+             <widget class="QRadioButton" name="reno6">
               <property name="text">
-               <string>Oppo Reno7</string>
+               <string notr="true">Oppo Reno6</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="reno7">
+              <property name="text">
+               <string notr="true">Oppo Reno7</string>
               </property>
              </widget>
             </item>
@@ -280,77 +277,115 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_2">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>263</width>
-             <height>432</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QRadioButton" name="radioButton">
-              <property name="text">
-               <string>Factory Reset</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_2">
-              <property name="text">
-               <string>Safe format data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_3">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_4">
-              <property name="text">
-               <string>Reset EFS</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_24">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_2">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_2">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>266</width>
+               <height>446</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QLabel" name="command_oppo">
+                <property name="text">
+                 <string notr="true">Command:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="userdata_oppo">
+                <property name="text">
+                 <string notr="true">Factory reset</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="safestorage_oppo">
+                <property name="text">
+                 <string notr="true">Safe format data</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_oppo">
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="efs_oppo">
+                <property name="text">
+                 <string notr="true">Reset EFS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="unlock_bl_oppo">
+                <property name="text">
+                 <string notr="true">Unlock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="relock_bl_oppo">
+                <property name="text">
+                 <string notr="true">Lock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_7">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="realme">
+      <widget class="QWidget" name="realme_menu">
        <attribute name="title">
-        <string>Realme</string>
+        <string notr="true">Realme</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QScrollArea" name="scrollArea_4">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -359,57 +394,67 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>113</width>
-             <height>306</height>
+             <width>269</width>
+             <height>488</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
-             <widget class="QPushButton" name="pushButton_74">
+             <widget class="QLabel" name="device_realme_label">
               <property name="text">
-               <string>Realme 6 Pro</string>
+               <string notr="true">Devices list:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_19">
+             <widget class="QRadioButton" name="realme6pro">
               <property name="text">
-               <string>Realme 7i</string>
+               <string notr="true">Realme 6 Pro</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_76">
+             <widget class="QRadioButton" name="realme7i">
               <property name="text">
-               <string>Realme 7 Pro</string>
+               <string notr="true">Realme 7i</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_22">
+             <widget class="QRadioButton" name="realme7pro">
               <property name="text">
-               <string>Realme 8 Pro</string>
+               <string notr="true">Realme 7 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_75">
+             <widget class="QRadioButton" name="realme8pro">
               <property name="text">
-               <string>Realme 9</string>
+               <string notr="true">Realme 8 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_20">
+             <widget class="QRadioButton" name="realme9">
               <property name="text">
-               <string>Realme C15</string>
+               <string notr="true">Realme 9</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_21">
+             <widget class="QRadioButton" name="realmec15">
               <property name="text">
-               <string>Realme C17</string>
+               <string notr="true">Realme C15</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="realmec17">
+              <property name="text">
+               <string notr="true">Realme C17</string>
               </property>
              </widget>
             </item>
@@ -431,77 +476,115 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_3">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_3">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>138</width>
-             <height>124</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
-            <item>
-             <widget class="QRadioButton" name="radioButton_5">
-              <property name="text">
-               <string>Factory Reset</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_6">
-              <property name="text">
-               <string>Safe format data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_7">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_8">
-              <property name="text">
-               <string>Reset EFS</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_23">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_3">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_3">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>266</width>
+               <height>446</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <widget class="QLabel" name="command_realme">
+                <property name="text">
+                 <string notr="true">Command:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="userdata_realme">
+                <property name="text">
+                 <string notr="true">Factory reset</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="safestorage_realme">
+                <property name="text">
+                 <string notr="true">Safe format data</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_realme">
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="efs_realme">
+                <property name="text">
+                 <string notr="true">Reset EFS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="unlock_bl_realme">
+                <property name="text">
+                 <string notr="true">Unlock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="relock_bl_realme">
+                <property name="text">
+                 <string notr="true">Lock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="vivo">
+      <widget class="QWidget" name="vivo_menu">
        <attribute name="title">
-        <string>Vivo</string>
+        <string notr="true">Vivo</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QScrollArea" name="scrollArea_6">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -510,120 +593,130 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>172</width>
-             <height>684</height>
+             <width>269</width>
+             <height>488</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_11">
             <item>
-             <widget class="QPushButton" name="pushButton_79">
+             <widget class="QLabel" name="device_vivo_label">
               <property name="text">
-               <string>Vivo IQ00 UI</string>
+               <string notr="true">Devices list:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_80">
+             <widget class="QRadioButton" name="iq00_ui">
               <property name="text">
-               <string>Vivo Y20 (Old security)</string>
+               <string notr="true">Vivo IQ00 UI</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_81">
+             <widget class="QRadioButton" name="y20_oldsec">
               <property name="text">
-               <string>Vivo Y20 (New security)</string>
+               <string notr="true">Vivo Y20 (Old security)</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_82">
+             <widget class="QRadioButton" name="y20_newsec">
               <property name="text">
-               <string>Vivo Y50T</string>
+               <string notr="true">Vivo Y20 (New security)</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_83">
+             <widget class="QRadioButton" name="y50t">
               <property name="text">
-               <string>Vivo Y53</string>
+               <string notr="true">Vivo Y50T</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_84">
+             <widget class="QRadioButton" name="y53">
               <property name="text">
-               <string>Vivo Y55/L</string>
+               <string notr="true">Vivo Y53</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_85">
+             <widget class="QRadioButton" name="y55">
               <property name="text">
-               <string>Vivo Y65</string>
+               <string notr="true">Vivo Y55/L</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_86">
+             <widget class="QRadioButton" name="y65">
               <property name="text">
-               <string>Vivo Y71</string>
+               <string notr="true">Vivo Y65</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_33">
+             <widget class="QRadioButton" name="y71">
               <property name="text">
-               <string>Vivo Y91/i</string>
+               <string notr="true">Vivo Y71</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_34">
+             <widget class="QRadioButton" name="y91">
               <property name="text">
-               <string>Vivo Y93</string>
+               <string notr="true">Vivo Y91/i</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_35">
+             <widget class="QRadioButton" name="y93">
               <property name="text">
-               <string>Vivo Y95</string>
+               <string notr="true">Vivo Y93</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_30">
+             <widget class="QRadioButton" name="y95">
               <property name="text">
-               <string>Vivo V9</string>
+               <string notr="true">Vivo Y95</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_31">
+             <widget class="QRadioButton" name="v9">
               <property name="text">
-               <string>Vivo V9 Youth</string>
+               <string notr="true">Vivo V9</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_32">
+             <widget class="QRadioButton" name="v9yth">
               <property name="text">
-               <string>Vivo V11</string>
+               <string notr="true">Vivo V9 Youth</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_77">
+             <widget class="QRadioButton" name="v11">
               <property name="text">
-               <string>Vivo V20</string>
+               <string notr="true">Vivo V11</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_78">
+             <widget class="QRadioButton" name="v20">
               <property name="text">
-               <string>Vivo V21E</string>
+               <string notr="true">Vivo V20</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="v21e">
+              <property name="text">
+               <string notr="true">Vivo V21E</string>
               </property>
              </widget>
             </item>
@@ -645,77 +738,115 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_5">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_5">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>138</width>
-             <height>124</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_10">
-            <item>
-             <widget class="QRadioButton" name="radioButton_9">
-              <property name="text">
-               <string>Factory Reset</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_10">
-              <property name="text">
-               <string>Safe format data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_11">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_12">
-              <property name="text">
-               <string>Reset EFS</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_5">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_5">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>266</width>
+               <height>446</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QLabel" name="command_vivo">
+                <property name="text">
+                 <string notr="true">Command:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="userdata_vivo">
+                <property name="text">
+                 <string notr="true">Factory reset</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="safestorage_vivo">
+                <property name="text">
+                 <string notr="true">Safe format data</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_vivo">
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="efs_vivo">
+                <property name="text">
+                 <string notr="true">Reset EFS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="unlock_bl_vivo">
+                <property name="text">
+                 <string notr="true">Unlock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="relock_bl_vivo">
+                <property name="text">
+                 <string notr="true">Lock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_5">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_5">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="xiaomi">
+      <widget class="QWidget" name="xiaomi_poco_menu">
        <attribute name="title">
-        <string>Xiaomi / Poco</string>
+        <string notr="true">Xiaomi / Poco</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QScrollArea" name="scrollArea_8">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -724,225 +855,235 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>181</width>
-             <height>1314</height>
+             <width>248</width>
+             <height>904</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
-             <widget class="QPushButton" name="pushButton_42">
+             <widget class="QLabel" name="device_xiaomi_label">
               <property name="text">
-               <string>Xiaomi Mi 8 EE</string>
+               <string notr="true">Devices list:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_43">
+             <widget class="QRadioButton" name="mi8ee">
               <property name="text">
-               <string>Xiaomi Mi 8 SE</string>
+               <string notr="true">Xiaomi Mi 8 EE</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_44">
+             <widget class="QRadioButton" name="mi8se">
               <property name="text">
-               <string>Xiaomi Mi 8 UD</string>
+               <string notr="true">Xiaomi Mi 8 SE</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_87">
+             <widget class="QRadioButton" name="mi8ud">
               <property name="text">
-               <string>Xiaomi Mi 9T</string>
+               <string notr="true">Xiaomi Mi 8 UD</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_88">
+             <widget class="QRadioButton" name="mi9t">
               <property name="text">
-               <string>Xiaomi Mi 10 Lite</string>
+               <string notr="true">Xiaomi Mi 9T</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_89">
+             <widget class="QRadioButton" name="mi10lite">
               <property name="text">
-               <string>Xiaomi 11T Pro</string>
+               <string notr="true">Xiaomi Mi 10 Lite</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_45">
+             <widget class="QRadioButton" name="mi11tpro">
               <property name="text">
-               <string>Xiaomi Mi A2</string>
+               <string notr="true">Xiaomi 11T Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_46">
+             <widget class="QRadioButton" name="mia2">
               <property name="text">
-               <string>Xiaomi Mi A2 Lite</string>
+               <string notr="true">Xiaomi Mi A2</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_47">
+             <widget class="QRadioButton" name="mia2lite">
               <property name="text">
-               <string>Xiaomi Mi Max 2</string>
+               <string notr="true">Xiaomi Mi A2 Lite</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_48">
+             <widget class="QRadioButton" name="mimax2">
               <property name="text">
-               <string>Xiaomi Mi Max 3</string>
+               <string notr="true">Xiaomi Mi Max 2</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_49">
+             <widget class="QRadioButton" name="mimax3">
               <property name="text">
-               <string>Xiaomi Mi Mix</string>
+               <string notr="true">Xiaomi Mi Max 3</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_50">
+             <widget class="QRadioButton" name="mimix">
               <property name="text">
-               <string>Xiaomi Mi Mix 2S</string>
+               <string notr="true">Xiaomi Mi Mix</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_51">
+             <widget class="QRadioButton" name="mimix2s">
               <property name="text">
-               <string>Xiaomi Mi Mix 3</string>
+               <string notr="true">Xiaomi Mi Mix 2S</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_36">
+             <widget class="QRadioButton" name="mimix3">
               <property name="text">
-               <string>Xiaomi Mi Note 2</string>
+               <string notr="true">Xiaomi Mi Mix 3</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_29">
+             <widget class="QRadioButton" name="minote2">
               <property name="text">
-               <string>Xiaomi Mi Note 3</string>
+               <string notr="true">Xiaomi Mi Note 2</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_26">
+             <widget class="QRadioButton" name="minote3">
               <property name="text">
-               <string>Xiaomi Mi Pad 4</string>
+               <string notr="true">Xiaomi Mi Note 3</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_24">
+             <widget class="QRadioButton" name="mipad4">
               <property name="text">
-               <string>Xiaomi Poco F1</string>
+               <string notr="true">Xiaomi Mi Pad 4</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_90">
+             <widget class="QRadioButton" name="pocof1">
               <property name="text">
-               <string>Xiaomi Poco M2 Pro</string>
+               <string notr="true">Xiaomi Poco F1</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_91">
+             <widget class="QRadioButton" name="pocom2pro">
               <property name="text">
-               <string>Xiaomi Poco M3</string>
+               <string notr="true">Xiaomi Poco M2 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_92">
+             <widget class="QRadioButton" name="pocom3">
               <property name="text">
-               <string>Xiaomi Redmi 5A</string>
+               <string notr="true">Xiaomi Poco M3</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_41">
+             <widget class="QRadioButton" name="redmi6pro">
               <property name="text">
-               <string>Xiaomi Redmi 6 Pro</string>
+               <string notr="true">Xiaomi Redmi 6 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_25">
+             <widget class="QRadioButton" name="redmi7">
               <property name="text">
-               <string>Xiaomi Redmi 7</string>
+               <string notr="true">Xiaomi Redmi 7</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_93">
+             <widget class="QRadioButton" name="redmi9t">
               <property name="text">
-               <string>Xiaomi Redmi 9T</string>
+               <string notr="true">Xiaomi Redmi 9T</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_94">
+             <widget class="QRadioButton" name="redmik20pro">
               <property name="text">
-               <string>Xiaomi Redmi K20 Pro</string>
+               <string notr="true">Xiaomi Redmi K20 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_28">
+             <widget class="QRadioButton" name="redminote5">
               <property name="text">
-               <string>Xiaomi Redmi Note 5</string>
+               <string notr="true">Xiaomi Redmi Note 5</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_13">
+             <widget class="QRadioButton" name="redminote5pro">
               <property name="text">
-               <string>Xiaomi Redmi Note 5 Pro</string>
+               <string notr="true">Xiaomi Redmi Note 5 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_23">
+             <widget class="QRadioButton" name="redminote5a">
               <property name="text">
-               <string>Xiaomi Redmi Note 5A</string>
+               <string notr="true">Xiaomi Redmi Note 5A</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_98">
+             <widget class="QRadioButton" name="redminote6pro">
               <property name="text">
-               <string>Xiaomi Redmi Note 6 Pro</string>
+               <string notr="true">Xiaomi Redmi Note 6 Pro</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_97">
+             <widget class="QRadioButton" name="redminote7">
               <property name="text">
-               <string>Xiaomi Redmi Note 8</string>
+               <string notr="true">Xiaomi Redmi Note 7</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_96">
+             <widget class="QRadioButton" name="redminote8">
               <property name="text">
-               <string>Xiaomi Redmi Note 9S</string>
+               <string notr="true">Xiaomi Redmi Note 8</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_95">
+             <widget class="QRadioButton" name="redminote9s">
               <property name="text">
-               <string>Xiaomi Redmi Note 9 Pro</string>
+               <string notr="true">Xiaomi Redmi Note 9S</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="redminote9pro">
+              <property name="text">
+               <string notr="true">Xiaomi Redmi Note 9 Pro</string>
               </property>
              </widget>
             </item>
@@ -964,84 +1105,122 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_7">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_7">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>138</width>
-             <height>152</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_12">
-            <item>
-             <widget class="QRadioButton" name="radioButton_13">
-              <property name="text">
-               <string>Factory Reset</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_14">
-              <property name="text">
-               <string>Safe format data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_26">
-              <property name="text">
-               <string>Reset MiCloud</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_15">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_16">
-              <property name="text">
-               <string>Reset EFS</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_7">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_7">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>266</width>
+               <height>446</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <widget class="QLabel" name="command_xiaomi">
+                <property name="text">
+                 <string notr="true">Command:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="userdata_xiaomi">
+                <property name="text">
+                 <string notr="true">Factory reset</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="safestorage_xiaomi">
+                <property name="text">
+                 <string notr="true">Safe format data</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="micloud">
+                <property name="text">
+                 <string notr="true">Reset MiCloud</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_xiaomi">
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="efs_xiaomi">
+                <property name="text">
+                 <string notr="true">Reset EFS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="unlock_bl_xiaomi">
+                <property name="text">
+                 <string notr="true">Unlock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="relock_bl_xiaomi">
+                <property name="text">
+                 <string notr="true">Lock Bootloader</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_4">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="samsung">
+      <widget class="QWidget" name="samsung_menu">
        <attribute name="title">
-        <string>Samsung</string>
+        <string notr="true">Samsung</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QScrollArea" name="scrollArea_10">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -1050,78 +1229,88 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>202</width>
-             <height>432</height>
+             <width>269</width>
+             <height>488</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
-             <widget class="QPushButton" name="pushButton_52">
+             <widget class="QLabel" name="device_samsung_label">
               <property name="text">
-               <string>Samsung A01 [SM-A015F]</string>
+               <string notr="true">Devices list:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_53">
+             <widget class="QRadioButton" name="sm_a015f">
               <property name="text">
-               <string>Samsung A02 [SM-A025F]</string>
+               <string notr="true">Samsung A01 [SM-A015F]</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_54">
+             <widget class="QRadioButton" name="sm_a025f">
               <property name="text">
-               <string>Samsung A11 [SM-A115A]</string>
+               <string notr="true">Samsung A02 [SM-A025F]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_55">
+             <widget class="QRadioButton" name="sm_a115a">
               <property name="text">
-               <string>Samsung A11 [SM-A115F]</string>
+               <string notr="true">Samsung A11 [SM-A115A]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_56">
+             <widget class="QRadioButton" name="sm_a115f">
               <property name="text">
-               <string>Samsung A11 [SM-A115U]</string>
+               <string notr="true">Samsung A11 [SM-A115F]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_57">
+             <widget class="QRadioButton" name="sm_a115u">
               <property name="text">
-               <string>Samsung A70 [SM-A705F]</string>
+               <string notr="true">Samsung A11 [SM-A115U]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_58">
+             <widget class="QRadioButton" name="sm_a705f">
               <property name="text">
-               <string>Samsung J4 Plus [SM-J415F]</string>
+               <string notr="true">Samsung A70 [SM-A705F]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_27">
+             <widget class="QRadioButton" name="sm_j415f">
               <property name="text">
-               <string>Samsung J6 Plus [SM-J610F]</string>
+               <string notr="true">Samsung J4 Plus [SM-J415F]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_59">
+             <widget class="QRadioButton" name="sm_j610f">
               <property name="text">
-               <string>Samsung M02s [SM-M025F]</string>
+               <string notr="true">Samsung J6 Plus [SM-J610F]</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_60">
+             <widget class="QRadioButton" name="sm_m025f">
               <property name="text">
-               <string>Samsung M11 [SM-M115F]</string>
+               <string notr="true">Samsung M02s [SM-M025F]</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="sm_m115f">
+              <property name="text">
+               <string notr="true">Samsung M11 [SM-M115F]</string>
               </property>
              </widget>
             </item>
@@ -1143,77 +1332,101 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_9">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_9">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>138</width>
-             <height>124</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
-             <widget class="QRadioButton" name="radioButton_17">
-              <property name="text">
-               <string>Factory Reset</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_18">
-              <property name="text">
-               <string>Safe format data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_19">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_20">
-              <property name="text">
-               <string>Reset EFS</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_9">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_9">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>266</width>
+               <height>446</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QLabel" name="command_samsung">
+                <property name="text">
+                 <string notr="true">Command:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="userdata_samsung">
+                <property name="text">
+                 <string notr="true">Factory reset</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="safestorage_samsung">
+                <property name="text">
+                 <string notr="true">Safe format data</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_samsung">
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="efs_samsung">
+                <property name="text">
+                 <string notr="true">Reset EFS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_3">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="adb_fastboot_menu">
        <attribute name="title">
-        <string>ADB Fastboot</string>
+        <string notr="true">ADB &amp;&amp; Fastboot</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QScrollArea" name="scrollArea_12">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -1222,15 +1435,32 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>96</width>
-             <height>54</height>
+             <width>269</width>
+             <height>488</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_17">
             <item>
-             <widget class="QPushButton" name="pushButton_73">
+             <widget class="QLabel" name="method_label">
               <property name="text">
-               <string>Execute</string>
+               <string notr="true">Method list:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="adb_rb1">
+              <property name="text">
+               <string notr="true">ADB mode</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="adb_rb2">
+              <property name="text">
+               <string notr="true">Fastboot mode</string>
               </property>
              </widget>
             </item>
@@ -1252,151 +1482,1678 @@
          </widget>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea_11">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QScrollArea" name="scrollArea_11">
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="widgetResizable">
+             <bool>true</bool>
+            </property>
+            <widget class="QWidget" name="scrollAreaWidgetContents_11">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>245</width>
+               <height>496</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <item>
+               <widget class="QLabel" name="fastboot_label">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Fastboot function:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="ubl_1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Unlock Bootloader (Method 1)</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="ubl_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Unlock Bootloader (Method 2)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="lock_bl_1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Lock Bootloader (Method 1)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="lock_bl_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Lock Bootloader (Method 2)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="reboot_edl_1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Reboot to EDL mode (Method 1)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="reboot_edl_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Reboot to EDL mode (Method 2)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="frp_fastboot">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Reset FRP</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="demo_1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Reset Demo mode (Method 1)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="demo_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string notr="true">Reset Demo mode (Method 2)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="adb_fastboot_space_1">
+                <property name="text">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="samadb_label">
+                <property name="text">
+                 <string notr="true">Samsung Test mode:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="adb_samsung_frp">
+                <property name="text">
+                 <string notr="true">ADB Samsung FRP</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="adb_frp">
+                <property name="text">
+                 <string notr="true">Erase FRP ADB on</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="push_frp">
+                <property name="text">
+                 <string notr="true">Push FRP ADB CMD</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="adb_fastboot_space_2">
+                <property name="text">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="adb_label">
+                <property name="text">
+                 <string notr="true">ADB Debugging:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="oppo_demo">
+                <property name="text">
+                 <string notr="true">Oppo Demo phone</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string notr="true">&amp;Unlock</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="current_1">
+      <property name="geometry">
+       <rect>
+        <x>595</x>
+        <y>490</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Current:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="stop_process_1">
+      <property name="geometry">
+       <rect>
+        <x>930</x>
+        <y>491</y>
+        <width>61</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Stop</string>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="progressBar">
+      <property name="geometry">
+       <rect>
+        <x>654</x>
+        <y>520</y>
+        <width>271</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>100</number>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="progressBar_2">
+      <property name="geometry">
+       <rect>
+        <x>654</x>
+        <y>489</y>
+        <width>271</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>100</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="total_1">
+      <property name="geometry">
+       <rect>
+        <x>595</x>
+        <y>521</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Total:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="log_process_3">
+      <property name="geometry">
+       <rect>
+        <x>587</x>
+        <y>50</y>
+        <width>411</width>
+        <height>421</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(66, 66, 66); selection-background-color: rgb(28, 113, 216); alternate-background-color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="DownloaderMenu">
+     <attribute name="title">
+      <string notr="true">Downloader</string>
+     </attribute>
+     <widget class="QComboBox" name="port_list_2">
+      <property name="geometry">
+       <rect>
+        <x>588</x>
+        <y>7</y>
+        <width>321</width>
+        <height>31</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="refresh_port_2">
+      <property name="geometry">
+       <rect>
+        <x>916</x>
+        <y>7</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Re&amp;fresh</string>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="downloader_tab">
+      <property name="geometry">
+       <rect>
+        <x>7</x>
+        <y>7</y>
+        <width>571</width>
+        <height>541</height>
+       </rect>
+      </property>
+      <widget class="QWidget" name="edl">
+       <attribute name="title">
+        <string notr="true">EDL mode</string>
+       </attribute>
+       <widget class="QTableWidget" name="edl_partition_list">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>50</y>
+          <width>551</width>
+          <height>233</height>
+         </rect>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropOverwriteMode">
+         <bool>false</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">lun</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">blocks</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">partition</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">start sector</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">size</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">filename</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="flash_button_1">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>360</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Flash</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="read_button_1">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>325</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Read</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="erase_button_1">
+        <property name="geometry">
+         <rect>
+          <x>106</x>
+          <y>325</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Erase</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="backup_button">
+        <property name="geometry">
+         <rect>
+          <x>106</x>
+          <y>360</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Ba&amp;ckup</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="directory_line">
+        <property name="geometry">
+         <rect>
+          <x>76</x>
+          <y>11</y>
+          <width>391</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browse_directory_1">
+        <property name="geometry">
+         <rect>
+          <x>475</x>
+          <y>11</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Browse</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="directory_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>11</y>
+          <width>61</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Directory:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="brand_cb">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>423</x>
+          <y>394</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string notr="true">Oppo</string>
+        </property>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi / Poco</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Samsung</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QComboBox" name="model_cb">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>423</x>
+          <y>427</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string notr="true">Oppo A33</string>
+        </property>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A33</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A53</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A53s</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A73</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A74</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A76</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo A95</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo F17</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo F19</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo F21 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno4 (Old security)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno4 (New security)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno4 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Oppo Reno7</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme 6 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme 7i</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme 7 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme 8 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme 9</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme C15</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Realme C17</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo IQ00 UI</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y20 (Old security)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">VIvo Y20 (New security)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y50T</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y53</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y55/L</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y65</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y71</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y91/i</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y93</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo Y95</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo V9</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo V9 Youth</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo V11 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo V20</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Vivo V21E</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi 8 EE</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi 8 SE</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi 8 UD</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi 9T</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi 10 Lite</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi 11T Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi A2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi A2 Lite</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Max 2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Max 3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Mix</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Mix 2s</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Mix 3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Note 2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Note 3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Mi Pad 4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Poco F1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Poco M2 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Poco M3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi 6 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi 7</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi 9T</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi K20 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 5 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 6 Pro</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 7</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 9S</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">Xiaomi Redmi Note 9 Pro</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QComboBox" name="storage_cb">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>423</x>
+          <y>460</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="currentText">
+         <string notr="true">emmc</string>
+        </property>
+        <item>
+         <property name="text">
+          <string notr="true">emmc</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">ufs</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="brand_label">
+        <property name="geometry">
+         <rect>
+          <x>348</x>
+          <y>394</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Brand: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="model_label">
+        <property name="geometry">
+         <rect>
+          <x>348</x>
+          <y>427</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Model: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="storage_label">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>348</x>
+          <y>460</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Storage: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browse_loaderpath">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>243</x>
+          <y>460</y>
+          <width>75</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Browse</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="loaderpath_line">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>460</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="loader_checkbox">
+        <property name="geometry">
+         <rect>
+          <x>14</x>
+          <y>460</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Loader: </string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="rawprogram_cb">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>423</x>
+          <y>325</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="patch_cb">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>423</x>
+          <y>360</y>
+          <width>131</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="rawprogram_label">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>308</x>
+          <y>325</y>
+          <width>111</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">rawprogram.xml: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="patchxml_label">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>348</x>
+          <y>360</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">patch.xml: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="reboot_1">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>292</y>
+          <width>445</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Re&amp;boot device after flash</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="select_all_1">
+        <property name="geometry">
+         <rect>
+          <x>14</x>
+          <y>292</y>
+          <width>92</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Select &amp;all</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="fastboot">
+       <attribute name="title">
+        <string notr="true">Fastboot mode</string>
+       </attribute>
+       <widget class="QTableWidget" name="fastboot_partition_list">
+        <property name="geometry">
+         <rect>
+          <x>7</x>
+          <y>50</y>
+          <width>551</width>
+          <height>331</height>
+         </rect>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropOverwriteMode">
+         <bool>false</bool>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">partition</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">size</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">filename</string>
+         </property>
+         <property name="textAlignment">
+          <set>AlignLeading|AlignVCenter</set>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="erase_button_2">
+        <property name="geometry">
+         <rect>
+          <x>106</x>
+          <y>423</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Erase</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="flash_button_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>458</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Flash</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="manual_flash_button">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>423</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">&amp;Manual</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="directory_line_2">
+        <property name="geometry">
+         <rect>
+          <x>76</x>
+          <y>11</y>
+          <width>391</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="directory_label_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>11</y>
+          <width>61</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Directory:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="browse_directory_2">
+        <property name="geometry">
+         <rect>
+          <x>475</x>
+          <y>11</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Browse</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="reboot_2">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>390</y>
+          <width>445</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Re&amp;boot device after flash</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox">
+        <property name="geometry">
+         <rect>
+          <x>401</x>
+          <y>423</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>348</x>
+          <y>423</y>
+          <width>47</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Script: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="select_all_2">
+        <property name="geometry">
+         <rect>
+          <x>14</x>
+          <y>390</y>
+          <width>92</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string notr="true">Select &amp;all</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="current_2">
+      <property name="geometry">
+       <rect>
+        <x>595</x>
+        <y>490</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Current:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="stop_process_2">
+      <property name="geometry">
+       <rect>
+        <x>930</x>
+        <y>491</y>
+        <width>61</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">&amp;Stop</string>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="progressBar_3">
+      <property name="geometry">
+       <rect>
+        <x>654</x>
+        <y>520</y>
+        <width>271</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>100</number>
+      </property>
+     </widget>
+     <widget class="QProgressBar" name="progressBar_4">
+      <property name="geometry">
+       <rect>
+        <x>654</x>
+        <y>489</y>
+        <width>271</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>100</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="total_2">
+      <property name="geometry">
+       <rect>
+        <x>595</x>
+        <y>521</y>
+        <width>51</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string notr="true">Total:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="log_process_2">
+      <property name="geometry">
+       <rect>
+        <x>587</x>
+        <y>50</y>
+        <width>411</width>
+        <height>421</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(66, 66, 66); selection-background-color: rgb(28, 113, 216); alternate-background-color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="TestpointMenu">
+     <attribute name="title">
+      <string notr="true">Testpoint</string>
+     </attribute>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>332</x>
+        <y>9</y>
+        <width>666</width>
+        <height>538</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(66, 66, 66);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QScrollArea" name="scrollArea_18">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_20">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>646</width>
+            <height>518</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QTabWidget" name="brand_testpoint_tab">
+      <property name="geometry">
+       <rect>
+        <x>7</x>
+        <y>7</y>
+        <width>316</width>
+        <height>541</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <widget class="QWidget" name="oppo_testpoint_tab">
+       <attribute name="title">
+        <string notr="true">Oppo</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea_13">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_11">
+          <widget class="QWidget" name="scrollAreaWidgetContents_13">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>227</width>
-             <height>486</height>
+             <width>292</width>
+             <height>488</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
-             <widget class="QLabel" name="label_4">
+             <widget class="QPushButton" name="pushButton_2">
               <property name="text">
-               <string>Fastboot function:</string>
+               <string notr="true">PushButton</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_21">
-              <property name="text">
-               <string>Unlock Bootloader (Method 1)</string>
+             <spacer name="verticalSpacer_13">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
-              <property name="checked">
-               <bool>true</bool>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="realme_testpoint_tab">
+       <attribute name="title">
+        <string notr="true">Realme</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea_14">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_15">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>100</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item>
+             <widget class="QPushButton" name="pushButton_8">
+              <property name="text">
+               <string notr="true">PushButton</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_22">
+             <spacer name="verticalSpacer_14">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="vivo_testpoint_tab">
+       <attribute name="title">
+        <string notr="true">Vivo</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea_15">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_16">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>100</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <item>
+             <widget class="QPushButton" name="pushButton_9">
               <property name="text">
-               <string>Unlock Bootloader (Method 2)</string>
+               <string notr="true">PushButton</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_23">
+             <spacer name="verticalSpacer_15">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="xiaomi_testpoint_tab">
+       <attribute name="title">
+        <string notr="true">Xiaomi / Poco</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea_16">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_17">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>100</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_20">
+            <item>
+             <widget class="QPushButton" name="pushButton_10">
               <property name="text">
-               <string>Lock Bootloader (Method 1)</string>
+               <string notr="true">PushButton</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_24">
+             <spacer name="verticalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="samsung_testpoint_tab">
+       <attribute name="title">
+        <string notr="true">Samsung</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea_17">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_18">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>100</width>
+             <height>52</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_21">
+            <item>
+             <widget class="QPushButton" name="pushButton_11">
               <property name="text">
-               <string>Lock Bootloader (Method 2)</string>
+               <string notr="true">PushButton</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_25">
-              <property name="text">
-               <string>Reboot to EDL mode (Method 1)</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_27">
-              <property name="text">
-               <string>Reboot to EDL mode (Method 2)</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_28">
-              <property name="text">
-               <string>Reset FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_29">
-              <property name="text">
-               <string>Reset Demo mode (Method 1)</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_30">
-              <property name="text">
-               <string>Reset Demo mode (Method 2)</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_23">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Samsung Test mode:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_31">
-              <property name="text">
-               <string>ADB Samsung FRP</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_32">
-              <property name="text">
-               <string>Erase FRP ADB On</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_33">
-              <property name="text">
-               <string>Push FRP ADB CMD</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_24">
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>ADB Debugging:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_34">
-              <property name="text">
-               <string>Oppo Demo phone</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_11">
+             <spacer name="verticalSpacer_17">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -1416,901 +3173,21 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="dlmenu">
+    <widget class="QWidget" name="ManualGuideMenu">
      <attribute name="title">
-      <string>Downloader</string>
+      <string notr="true">Manual guide</string>
      </attribute>
-     <widget class="QListView" name="log_2">
+     <widget class="QFrame" name="frame_3">
       <property name="geometry">
        <rect>
-        <x>577</x>
-        <y>50</y>
-        <width>371</width>
-        <height>451</height>
+        <x>5</x>
+        <y>4</y>
+        <width>1001</width>
+        <height>541</height>
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(119, 118, 123); color: rgb(222, 221, 218);</string>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="comboBox_5">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>14</y>
-        <width>291</width>
-        <height>24</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_18">
-      <property name="geometry">
-       <rect>
-        <x>877</x>
-        <y>14</y>
-        <width>71</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Refresh</string>
-      </property>
-     </widget>
-     <widget class="QTabWidget" name="tabWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>561</width>
-        <height>491</height>
-       </rect>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="edl">
-       <attribute name="title">
-        <string>EDL mode</string>
-       </attribute>
-       <widget class="QWidget" name="verticalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>6</x>
-          <y>7</y>
-          <width>105</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_18">
-         <item alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>rawprogram.xml: </string>
-           </property>
-          </widget>
-         </item>
-         <item alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>patch.xml: </string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_4">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>350</y>
-          <width>331</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="checkBox_6">
-           <property name="text">
-            <string>Loader: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEdit_4">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pushButton_61">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QTableWidget" name="tableWidget">
-        <property name="geometry">
-         <rect>
-          <x>6</x>
-          <y>71</y>
-          <width>541</width>
-          <height>241</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(119, 118, 123); selection-background-color: rgb(28, 113, 216); alternate-background-color: rgb(255, 255, 255);</string>
-        </property>
-        <column>
-         <property name="text">
-          <string>lun</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>blocks</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>partition</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>start sector</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>size</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>filename</string>
-         </property>
-        </column>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>110</x>
-          <y>7</y>
-          <width>351</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_20">
-         <item>
-          <widget class="QLineEdit" name="lineEdit_5"/>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="gridLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>320</y>
-          <width>321</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QCheckBox" name="checkBox_4">
-           <property name="text">
-            <string>Select all partition</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_5">
-           <property name="text">
-            <string>Reboot device after flash</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>466</x>
-          <y>7</y>
-          <width>82</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_7">
-         <item>
-          <widget class="QPushButton" name="pushButton_38">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_39">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_4">
-        <property name="geometry">
-         <rect>
-          <x>350</x>
-          <y>350</y>
-          <width>61</width>
-          <height>91</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0" alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>Brand: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Model: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_19">
-           <property name="text">
-            <string>Storage: </string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="gridLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>413</x>
-          <y>350</y>
-          <width>131</width>
-          <height>91</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="1" column="0">
-          <widget class="QComboBox" name="comboBox_7">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>Oppo A33</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A53</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A53s</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A73</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A74</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A76</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo A95</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo F17</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo F19</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo F21 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno4 (Old security)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno4 (New security)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno4 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno5</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno6</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Oppo Reno7</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme 6 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme 7i</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme 7 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme 8 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme 9</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme C15</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme C17</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo IQ00 UI</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y20 (Old security)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>VIvo Y20 (New security)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y50T</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y53</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y55/L</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y65</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y71</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y91/i</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y93</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo Y95</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo V9</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo V9 Youth</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo V11 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo V20</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo V21E</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi 8 EE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi 8 SE</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi 8 UD</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi 9T</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi 10 Lite</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi 11T Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi A2</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi A2 Lite</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Max 2</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Max 3</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Mix</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Mix 2s</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Mix 3</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Note 2</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Note 3</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Mi Pad 4</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Poco F1</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Poco M2 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Poco M3</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi 6 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi 7</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi 9T</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 5</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 5 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 6 Pro</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 8</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 9S</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi Redmi Note 9 Pro</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QComboBox" name="comboBox_8">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <item>
-            <property name="text">
-             <string>Oppo</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Realme</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Vivo</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Xiaomi / Poco</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Samsung</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QComboBox" name="comboBox_6">
-           <item>
-            <property name="text">
-             <string>emmc</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>ufs</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QPushButton" name="pushButton_16">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>320</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Flash</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_17">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>320</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Read</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_40">
-        <property name="geometry">
-         <rect>
-          <x>150</x>
-          <y>320</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Erase</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="fastboot">
-       <attribute name="title">
-        <string>Fastboot mode</string>
-       </attribute>
-       <widget class="QWidget" name="verticalLayoutWidget_6">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>7</y>
-          <width>371</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_21">
-         <item>
-          <widget class="QLineEdit" name="lineEdit_7"/>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="gridLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>220</x>
-          <y>370</y>
-          <width>321</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <widget class="QCheckBox" name="checkBox_8">
-           <property name="text">
-            <string>Select all partition</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBox_9">
-           <property name="text">
-            <string>Reboot device after flash</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_7">
-        <property name="geometry">
-         <rect>
-          <x>6</x>
-          <y>7</y>
-          <width>81</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_22">
-         <item alignment="Qt::AlignRight|Qt::AlignVCenter">
-          <widget class="QLabel" name="label_21">
-           <property name="text">
-            <string>Flash script: </string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QTableWidget" name="tableWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>6</x>
-          <y>50</y>
-          <width>541</width>
-          <height>301</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(119, 118, 123); selection-background-color: rgb(28, 113, 216); alternate-background-color: rgb(255, 255, 255);</string>
-        </property>
-        <column>
-         <property name="text">
-          <string>partition</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>size</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>filename</string>
-         </property>
-        </column>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_5">
-        <property name="geometry">
-         <rect>
-          <x>466</x>
-          <y>7</y>
-          <width>82</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_19">
-         <item>
-          <widget class="QPushButton" name="pushButton_64">
-           <property name="text">
-            <string>Browse</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QPushButton" name="pushButton_67">
-        <property name="geometry">
-         <rect>
-          <x>150</x>
-          <y>370</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Erase</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_66">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>370</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Flash</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_65">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>370</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Read</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_14">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>400</y>
-          <width>61</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Manual</string>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="comboBox">
-        <property name="geometry">
-         <rect>
-          <x>393</x>
-          <y>403</y>
-          <width>151</width>
-          <height>31</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="aboutmenu">
-     <attribute name="title">
-      <string>About this tools</string>
-     </attribute>
-     <widget class="QFrame" name="frame">
-      <property name="geometry">
-       <rect>
-        <x>6</x>
-        <y>8</y>
-        <width>941</width>
-        <height>491</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(119, 118, 123);</string>
+       <string notr="true">background-color: rgb(66, 66, 66);</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -2318,295 +3195,94 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_7">
-       <property name="geometry">
-        <rect>
-         <x>330</x>
-         <y>60</y>
-         <width>541</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>28</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Qualcomm Flasher Tools</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_8">
-       <property name="geometry">
-        <rect>
-         <x>80</x>
-         <y>100</y>
-         <width>201</width>
-         <height>201</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap>assets/resources/images/about_qctools.png</pixmap>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_9">
-       <property name="geometry">
-        <rect>
-         <x>382</x>
-         <y>251</y>
-         <width>111</width>
-         <height>81</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/nijel8&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#99c1f1;&quot;&gt;Nijel8&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://github.com/bjoernkerler&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#99c1f1;&quot;&gt;BjoernKerler&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://fb.com/haryflasher&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#99c1f1;&quot;&gt;Hary Sulteng&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;https://fb.com/f.hadikhoir&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#99c1f1;&quot;&gt;Hadi Khoirudin&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_10">
-       <property name="geometry">
-        <rect>
-         <x>530</x>
-         <y>251</y>
-         <width>311</width>
-         <height>81</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;li&gt;Developer of emmcdl binary&lt;/li&gt;&lt;li&gt;Qualcomm Firehose Attacker source code&lt;/li&gt;
-&lt;li&gt;Qualcomm GSM Sulteng Tool&lt;/li&gt;&lt;li&gt;Qualcomm Tools, a simple unlocker&lt;/li&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_11">
-       <property name="geometry">
-        <rect>
-         <x>356</x>
-         <y>251</y>
-         <width>21</width>
-         <height>81</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;li&gt;•&lt;/li&gt; &lt;li&gt;•&lt;/li&gt; &lt;li&gt;•&lt;/li&gt; &lt;li&gt;•&lt;/li&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignHCenter|Qt::AlignTop</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_12">
-       <property name="geometry">
-        <rect>
-         <x>350</x>
-         <y>221</y>
-         <width>121</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;b&gt;&lt;li&gt;Credits:&lt;/li&gt;&lt;/b&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_13">
-       <property name="geometry">
-        <rect>
-         <x>350</x>
-         <y>171</y>
-         <width>491</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;li&gt;This script created by Faizal Hamzah [The Firefox Flasher].&lt;/li&gt;&lt;li&gt;Licensed under the MIT License.&lt;/li&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_14">
-       <property name="geometry">
-        <rect>
-         <x>350</x>
-         <y>122</y>
-         <width>461</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;li&gt;Unlock and flash the Android phone device.  Powered by &lt;b&gt;Python&lt;/b&gt; and &lt;b&gt;PyQt5&lt;/b&gt;&lt;/li&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_37">
-       <property name="geometry">
-        <rect>
-         <x>710</x>
-         <y>390</y>
-         <width>181</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255); color: rgb(94, 92, 100);</string>
-       </property>
-       <property name="text">
-        <string>Check updates</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_62">
-       <property name="geometry">
-        <rect>
-         <x>510</x>
-         <y>390</y>
-         <width>181</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255); color: rgb(94, 92, 100);</string>
-       </property>
-       <property name="text">
-        <string>Open website</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_63">
-       <property name="geometry">
-        <rect>
-         <x>310</x>
-         <y>390</y>
-         <width>181</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255); color: rgb(94, 92, 100);</string>
-       </property>
-       <property name="text">
-        <string>Read license</string>
-       </property>
-      </widget>
      </widget>
     </widget>
    </widget>
-   <widget class="QProgressBar" name="progressBar">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>571</y>
-      <width>881</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="value">
-     <number>100</number>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>900</x>
-      <y>551</y>
-      <width>71</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Stop</string>
-    </property>
-   </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string notr="true">&amp;File</string>
+    </property>
+    <addaction name="action_System_Monitor"/>
+    <addaction name="action_Device_Manager"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string notr="true">&amp;Help</string>
+    </property>
+    <addaction name="action_Show_log"/>
+    <addaction name="action_Read_license"/>
+    <addaction name="action_Check_updates"/>
+    <addaction name="separator"/>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string notr="true">&amp;Tools</string>
+    </property>
+    <addaction name="actionInstall_driver"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="action_Quit">
+   <property name="text">
+    <string notr="true">&amp;Quit</string>
+   </property>
+  </action>
+  <action name="action_Device_Manager">
+   <property name="text">
+    <string notr="true">&amp;Device Manager</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string notr="true">&amp;About...</string>
+   </property>
+  </action>
+  <action name="action_System_Monitor">
+   <property name="text">
+    <string notr="true">&amp;System Monitor</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+T</string>
+   </property>
+  </action>
+  <action name="action_Check_updates">
+   <property name="text">
+    <string notr="true">&amp;Check updates</string>
+   </property>
+  </action>
+  <action name="action_Read_license">
+   <property name="text">
+    <string notr="true">&amp;Read license</string>
+   </property>
+  </action>
+  <action name="action_Show_log">
+   <property name="text">
+    <string notr="true">Show &amp;log</string>
+   </property>
+  </action>
+  <action name="actionInstall_driver">
+   <property name="text">
+    <string notr="true">Install &amp;driver</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

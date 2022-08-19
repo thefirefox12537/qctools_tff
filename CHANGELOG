@@ -12,7 +12,7 @@
 #### Oppo / Realme:
 
    | Codename               | Description  |
-   |:----------------------:|:------------:|
+   |:-----------------------|:-------------|
    | a33_cph2137            | Oppo A33     |
    | a53_cph2127            | Oppo A53     |
    | a53s_cph2139           | Oppo A53S    |
@@ -26,7 +26,7 @@
    | reno6_cph2235          | Oppo Reno6   |
 
    | Codename               | Description   |
-   |:----------------------:|:-------------:|
+   |:-----------------------|:--------------|
    | realme7i_rmx2103       | Realme 7i     |
    | realme8pro_rmx3091     | Realme 8 Pro  |
    | realmec15_rmx2195      | Realme C15    |
@@ -35,7 +35,7 @@
 #### Vivo:
 
    | Codename               | Description    |
-   |:----------------------:|:--------------:|
+   |:-----------------------|:---------------|
    | vivo_y91               | Vivo Y91/i     |
    | vivo_y93               | Vivo Y93       |
    | vivo_y95               | Vivo Y95       |
@@ -46,7 +46,7 @@
 #### Xiaomi / Poco:
 
    | Codename               | Description              |
-   |:----------------------:|:------------------------:|
+   |:-----------------------|:-------------------------|
    | mi8ee_ursa             | Xiaomi Mi 8 EE           |
    | mi8se_sirius           | Xiaomi Mi 8 SE           |
    | mi8ud_equuleus         | Xiaomi Mi 8 UD           |
@@ -70,7 +70,7 @@
 #### Samsung:
 
    | Codename               | Description             |
-   |:----------------------:|:-----------------------:|
+   |:-----------------------|:------------------------|
    | sm_a015f               | Samsung Galaxy A01      |
    | sm_a025f               | Samsung Galaxy A02s     |
    | sm_a115a               | Samsung Galaxy A11      |
@@ -92,7 +92,7 @@
 #### Oppo / Realme:
 
    | Codename               | Description     |
-   |:----------------------:|:---------------:|
+   |:-----------------------|:----------------|
    | a76_cph2375            | Oppo A76        |
    | f21pro_cph2219         | Oppo F21 Pro    |
    | reno4old_cph2113       | Oppo Reno4      |
@@ -101,7 +101,7 @@
    | reno7_cph2363          | Oppo Reno7      |
 
    | Codename               | Description   |
-   |:----------------------:|:-------------:|
+   |:-----------------------|:--------------|
    | realme6pro_rmx2061     | Realme 6 Pro  |
    | realme7pro_rmx2170     | Realme 7 Pro  |
    | realme9_rmx3521        | Realme 9      |
@@ -109,7 +109,7 @@
 #### Vivo:
 
    | Codename               | Description   |
-   |:----------------------:|:-------------:|
+   |:-----------------------|:--------------|
    | vivo_iq00              | Vivo IQ00 UI  |
    | vivo_y20_oldsec        | Vivo Y20      |
    | vivo_y20_newsec        | Vivo Y20      |
@@ -124,7 +124,7 @@
 #### Xiaomi / Poco:
 
    | Codename               | Description              |
-   |:----------------------:|:------------------------:|
+   |:-----------------------|:-------------------------|
    | mi9t_raphael           | Xiaomi Mi 9T             |
    | mi10lite_toco          | Xiaomi Mi 10 Lite        |
    | mi11tpro_vili          | Xiaomi 11T Pro           |
@@ -137,3 +137,18 @@
    | note8_ginkgo           | Xiaomi Redmi Note 8      |
    | note9s_curtana         | Xiaomi Redmi Note 9S     |
    | note9pro_joyeuse       | Xiaomi Redmi Note 9 Pro  |
+
+## 1.0 revision 2 (GUI mode version: 1.0 beta 20220819_0840wib)
+
+1. Fix code
+1. Added feature:  Unlock and lock bootloader
+1. Added feature:  New GUI has been made. But it's beta version.
+<img src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/>
+
+**Device update commited:**
+
+#### Xiaomi / Poco:
+
+   | Codename         | Description                |
+   |:-----------------|:---------------------------|
+   | note7_lavender   | Xiaomi Redmi Note 7        |

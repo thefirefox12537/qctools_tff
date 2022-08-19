@@ -1,87 +1,88 @@
 ﻿<?xml version="1.0" ?>
 <patches>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="0" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="98"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="1" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="2" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="3" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="4" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="5" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="6" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="7" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="8" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="9" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="118"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="10" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="11" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="12" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="121"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="64" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="65" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="66" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="67" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="68" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="118"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="69" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="70" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="71" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="121"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="72" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="73" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="74" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="75" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="119"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="76" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="77" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="112"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="78" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="79" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="95"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="80" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="100"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="81" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="82" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="83" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="84" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="85" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="86" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="87" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="88" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="89" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="90" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="91" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="92" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="110"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="93" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="61"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="94" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="77"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="95" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="96" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="97" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="98" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="99" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="100" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="101" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="102" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="103" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="104" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="105" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="106" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="107" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="110"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="108" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="102"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="109" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="110" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="111" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="109"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="112" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="95"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="113" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="117"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="114" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="100"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="115" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="116" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="117" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="107"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="118" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="119" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="120" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="121" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="122" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="123" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="124" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="125" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="126" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="127" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="61"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="128" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="122"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="129" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="104"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="130" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="131" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="132" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="78"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="133" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
-<patch SECTOR_SIZE_IN_BYTES="4096" byte_offset="134" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
+  <!--NOTE: This is an ** Autogenerated file ** which created and customized by HadiK IT -->
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="0" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="98"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="1" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="2" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="3" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="4" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="5" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="6" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="7" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="8" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="9" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="118"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="10" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="11" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="12" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="121"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="64" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="65" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="66" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="67" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="68" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="118"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="69" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="70" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="71" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="121"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="72" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="73" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="74" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="75" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="119"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="76" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="77" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="112"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="78" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="79" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="95"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="80" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="100"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="81" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="82" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="83" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="84" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="85" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="86" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="87" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="88" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="89" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="90" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="91" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="92" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="110"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="93" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="61"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="94" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="77"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="95" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="96" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="97" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="116"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="98" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="99" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="100" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="101" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="102" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="103" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="104" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="105" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="106" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="107" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="110"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="108" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="102"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="109" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="110" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="114"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="111" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="109"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="112" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="95"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="113" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="117"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="114" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="100"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="115" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="105"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="116" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="115"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="117" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="107"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="118" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="119" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="120" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="121" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="122" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="111"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="123" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="99"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="124" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="97"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="125" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="108"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="126" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="101"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="127" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="61"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="128" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="122"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="129" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="104"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="130" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="45"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="131" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="67"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="132" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="78"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="133" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
+  <patch SECTOR_SIZE_IN_BYTES="512" byte_offset="134" filename="DISK" physical_partition_number="0" size_in_bytes="1" start_sector="8200" value="10"  what="Zero."/>
 </patches>

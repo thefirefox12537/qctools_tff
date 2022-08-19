@@ -27,13 +27,12 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="X86" (
 )
 
 set ARGS=%*
-set QUIET=^> nul
+set QUIET=^> nul 2^>^&1
 set basedir=%~dp0
 set basedir=%basedir:~0,-1%
 set TMPDIR=%temp%\%~n0
 set PyQt_script=%~dpn0.py
 set cecho=%basedir%\data\cecho.exe
-set repl=%basedir%\data\repl.cmd
 set downloadbinary=%basedir%\data\emmcdl.exe
 set repos=https://github.com/thefirefox12537/qctools_tff
 
@@ -44,6 +43,7 @@ if %OLD_WIN%?==1?  goto :det_oldwinnt
 
 for %%p in ("powershell.exe") do (
 	if not exist "%%~$PATH:p"  goto :no_powershell
+	set "runpwsh=call %%~np -noprofile -nologo -command"
 )
 
 for /f "tokens=*" %%a in ('powershell -noprofile -command "%protocol% -notcontains %current%" 2^> nul') do (
@@ -53,15 +53,15 @@ for /f "tokens=*" %%a in ('powershell -noprofile -command "%protocol% -notcontai
 if not exist "%downloadbinary%" (
 	mkdir "%basedir%\data\sources" > nul 2>&1
 	mkdir "%basedir%\data\sources\emmcdl" > nul 2>&1
-	if not exist "%basedir%\data\sources\emmcdl" powershell -noprofile -command ^
+	if not exist "%basedir%\data\sources\emmcdl" call %runpwsh% ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/master/data/sources/emmcdl.zip -target '%TMPDIR%\emmcdl.zip';" ^
+	"Download-Manager -uri %repos%/raw/additional/data/sources/emmcdl.zip -target '%TMPDIR%\emmcdl.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\emmcdl.zip' -destinationpath '%basedir%\data\sources\emmcdl\';" ^
 	"Remove-Item -force '%TMPDIR%\emmcdl.zip'"
 	cd "%basedir%\data\sources\emmcdl"
 
 	for /f "tokens=*" %%v in ('where /r "%Programs%\Microsoft Visual Studio" VsDevCmd.bat 2^> nul') do set VS=%%~v
-	if not exist "!VS!" powershell -noprofile -command ^
+	if not exist "!VS!" call %runpwsh% ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
 	"Download-Manager -uri https://aka.ms/vs/17/release/vs_BuildTools.exe -target '%TMPDIR%\buildtools.exe';" ^
 	"Start-Process -filepath '%TMPDIR%\buildtools.exe'" ^
@@ -80,7 +80,7 @@ if not exist "%downloadbinary%" (
 for %%a in ("%basedir%\data\adb.exe" "%basedir%\data\fastboot*.exe") do if not exist "%%~a" set NO_ADB=1
 if defined NO_ADB (
 	mkdir "%basedir%\data" > nul 2>&1
-	powershell -noprofile -command ^
+	call %runpwsh% ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
 	"Download-Manager -uri https://dl.google.com/android/repository/platform-tools_r28.0.1-windows.zip -target '%TMPDIR%\platform-tools.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\platform-tools.zip' -destinationpath '%temp%\';" ^
@@ -100,13 +100,12 @@ cd "%basedir%"
 
 if not defined ARGS (
 	if exist "%PyQt_script%" (
-		if /i "!python!"=="" (
+		if /i "%python%"=="" (
 			echo Requirements:  python
 			endlocal & exit /b
 		)
-		call "!python!" -m pip list 2>&1 | findstr /r /c:"PyQt5.\s" > nul || \
-		call "!python!" -m pip install PyQt5
-		call "!python!" "%PyQt_script%"
+		call "%python%" -m pip install --quiet --upgrade PyQt5 > nul 2>&1
+		call "%python%" -u "%PyQt_script%"
 		endlocal
 		exit /b
 	) else (
@@ -120,6 +119,8 @@ for %%i in (%ARGS:^== %) do (
 	for %%d in (--install-drivers -d) do  if "%%i"=="%%d"  goto :install_drivers
 	for %%h in (--help -h) do             if "%%i"=="%%h"  goto :show_usage
 	for %%m in (--method -M) do           if "%%i"=="%%m"  set METHOD_ARGS=1
+	for %%p in (--port -P) do             if "%%i"=="%%p"  set port_connect=1
+	for %%s in (--serial-adb -s) do       if "%%i"=="%%s"  set adb_connect=1
 	for %%v in (--verbose -v) do          if "%%i"=="%%v"  set QUIET=
 	for %%e in (--reboot-edl -E) do       if "%%i"=="%%e"  (
 		set METHOD=edl
@@ -127,38 +128,48 @@ for %%i in (%ARGS:^== %) do (
 		set REBOOT_EDL=1
 	)
 
+	if defined port_connect (
+		for /l %%c in (1,1,100) do if "%%i"=="COM%%c" set COMPORT=COM%%c
+	)
+	if defined adb_connect (
+		for /f "tokens=1 delims= " %%s in ('call "%basedir%\data\adb.exe" devices ^| findstr "device\>"') do if "%%i"=="%%s" set serial=%%s
+		for /f "tokens=1 delims= " %%s in ('call "%basedir%\data\adb.exe" devices ^| findstr "recovery\>"') do if "%%i"=="%%s" set serial=%%s
+		for /f "tokens=1 delims= " %%s in ('call "%basedir%\data\adb.exe" devices ^| findstr "sideload\>"') do if "%%i"=="%%s" set serial=%%s
+		for /f "tokens=1 delims= " %%s in ('call "%basedir%\data\fastboot.exe" devices ^| findstr "fastboot\>"') do if "%%i"=="%%s" set serial=%%s
+	)
+
 	for %%l in (
-		a33_cph2137  a53_cph2127  a53s_cph2139  a73_cph2099  a74_cph2219  a76_cph2375  a95_cph2365
-		f17_cph2095  f19_cph2219  f21pro_cph2219  reno4old_cph2113  reno4new_cph2113  reno4pro_cph2109
-		reno5_cph2159  reno6_cph2235  reno7_cph2363  realme6pro_rmx2061  realme7i_rmx2103  realme7pro_rmx2170
-		realme8pro_rmx3091  realme9_rmx3521  realmec15_rmx2195  realmec17_rmx2101  vivo_iq00  vivo_y20_oldsec
-		vivo_y20_newsec  vivo_y50t  vivo_y53  vivo_y55  vivo_y65  vivo_y71  vivo_y91  vivo_y93  vivo_y95
-		vivo_v9  vivo_v9yth  vivo_v11pro  vivo_v20_newsec  vivo_v21e  mi8ee_ursa  mi8se_sirius  mi8ud_equuleus
-		mi9t_raphael  mi10lite_toco  mi11tpro_vili  mia2_jasmine  mia2lite_daisy  mimax2_chiron  mimax3_nitrogen
-		mimix_lithium  mimix2s_polaris  mimix3_perseus  minote2_scorpio  minote3_jason  mipad4_clover
-		pocof1_beryllium  pocom2pro_gramin  pocom3_citrus  redmi5a_riva  redmi6pro_sakura  redmi7_onclite
-		redmi9t_lime  redmik20pro_raphael  note5_whyred  note5pro_whyred  note5a_ugglite  note6pro_tulip
-		note8_ginkgo  note9s_curtana  note9pro_joyeuse  sm_a015f  sm_a025f  sm_a115a  sm_a115f  sm_a115u
+		oppo_a33_cph2137  oppo_a53_cph2127  oppo_a53s_cph2139  oppo_a73_cph2099  oppo_a74_cph2219  oppo_a76_cph2375
+		oppo_a95_cph2365  oppo_f17_cph2095  oppo_f19_cph2219  oppo_f21pro_cph2219  oppo_reno4_oldsec_cph2113
+		oppo_reno4_newsec_cph2113  oppo_reno4pro_cph2109  oppo_reno5_cph2159  oppo_reno6_cph2235  oppo_reno7_cph2363
+		realme6pro_rmx2061  realme7i_rmx2103  realme7pro_rmx2170  realme8pro_rmx3091  realme9_rmx3521  realmec15_rmx2195
+		realmec17_rmx2101  vivo_iq00  vivo_y20_oldsec  vivo_iq00_ui  vivo_y20_oldsec  vivo_y20_newsec  vivo_y50t  vivo_y53
+		vivo_y55  vivo_y65  vivo_y71  vivo_y91  vivo_y93  vivo_y95  vivo_v9  vivo_v9yth  vivo_v11pro  vivo_v20_newsec
+		vivo_v21e  mi8ee_ursa  mi8se_sirius  mi8ud_equuleus  mi9t_raphael  mi10lite_toco  mi11tpro_vili  mia2_jasmine
+		mia2lite_daisy  mimax2_chiron  mimax3_nitrogen  mimix_lithium  mimix2s_polaris  mimix3_perseus  minote2_scorpio
+		minote3_jason  mipad4_clover  pocof1_beryllium  pocom2pro_gramin  pocom3_citrus  redmi5a_riva  redmi6pro_sakura
+		redmi7_onclite  redmi9t_lime  redmik20pro_raphael  note5_whyred  note5pro_whyred  note5a_ugglite  note6pro_tulip
+		note7_lavender  note8_ginkgo  note9s_curtana  note9pro_joyeuse  sm_a015f  sm_a025f  sm_a115a  sm_a115f  sm_a115u
 		sm_a705f  sm_j415f  sm_j610f  sm_m025f  sm_m115f
 	) do if "%%i"=="%%l"   set DEVICE=%%l
 
-	if "%%i"=="userdata" (
+	if "%%i"=="userdata" if %METHOD_ARGS% EQU 1 (
 		set METHOD=userdata
 		set METHOD_FULL=Factory Reset
 	)
-	if "%%i"=="frp" (
+	if "%%i"=="frp" if %METHOD_ARGS% EQU 1 (
 		set METHOD=frp
 		set METHOD_FULL=Erase FRP
 	)
-	if "%%i"=="efs" (
+	if "%%i"=="efs" if %METHOD_ARGS% EQU 1 (
 		set METHOD=efs
 		set METHOD_FULL=Erase EFS IMEI
 	)
-	if "%%i"=="misc" (
+	if "%%i"=="misc" if %METHOD_ARGS% EQU 1 (
 		set METHOD=misc
 		set METHOD_FULL=Safe format data
 	)
-	if "%%i"=="micloud" (
+	if "%%i"=="micloud" if %METHOD_ARGS% EQU 1 (
 		if not "%SHORT_BRAND%"=="xiaomi" (
 			echo This method only allowed for Xiaomi brands.
 			endlocal & exit /b
@@ -166,6 +177,21 @@ for %%i in (%ARGS:^== %) do (
 		set METHOD=micloud
 		set METHOD_FULL=Erase MiCloud
 	)
+	if "%%i"=="unlock-bl" if %METHOD_ARGS% EQU 1 (
+		set METHOD=unlock-bl
+		set DO_METHOD=Unlocking
+		set do_method_fastboot=unlock
+		set METHOD_FULL=Unlock bootloader
+		set RUN_BL=1
+	)
+	if "%%i"=="relock-bl" if %METHOD_ARGS% EQU 1 (
+		set METHOD=relock-bl
+		set DO_METHOD=Locking
+		set do_method_fastboot=lock
+		set METHOD_FULL=Lock bootloader
+		set RUN_BL=1
+	)
+	if "%%i"=="help" if %METHOD_ARGS% EQU 1 goto :show_help_method
 )
 
 if defined DEVICE      call :%DEVICE%
@@ -176,6 +202,7 @@ if not defined NAME         goto :no_device
 
 call :caption
 if %REBOOT_EDL% EQU 1  goto :reboot_edl
+if %RUN_BL% EQU 1      goto :process_bootloader
 call :execution
 
 for %%r in (
@@ -192,39 +219,63 @@ exit /b
 :: ######################################################################################################### ::
 
 :execution
-for /f "tokens=2*" %%a in ('reg.exe query HKLM\HARDWARE\DEVICEMAP\SERIALCOMM /v \Device\*QCUSB* 2^> nul') do (
-	if "%%~b"=="" (goto :no_port) else (set COMPORT=%%~b)
+if not defined COMPORT (
+	set /p "=[ * ]   Searching port connected . . .!_CR!" < nul
+	for /f "tokens=2*" %%a in ('reg.exe query HKLM\HARDWARE\DEVICEMAP\SERIALCOMM /v \Device\*QCUSB* 2^> nul') do (
+		if "%%~b"=="" (goto :no_port) else (set COMPORT=%%~b)
+	)
+	"%cecho%" [ {0A}mOK{#} ]   Searching port connected . . .
 )
+echo Port:   %COMPORT%
 
+call :get_hwid
 call :get_partition
 set "current_time=%DATE:~0,2%_%DATE:~3,2%_%DATE:~6,4%__%TIME:~0,2%_%TIME:~3,2%_%TIME:~6,2%"
 
-powershell -noprofile -command ^
-"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-"Download-Manager -uri %repos%/raw/master/data/loader/%SHORT_BRAND%/%firehosefile% -target '%TMPDIR%\%firehosefile%';" ^
-"Download-Manager -uri %repos%/raw/master/data/xml/boot.xml -target '%TMPDIR%\boot.xml';" ^
-"Download-Manager -uri %repos%/raw/master/data/xml/patch.xml -target '%TMPDIR%\patch.xml'"
+set /p "=[ * ]   Connecting to server . . .!_CR!" < nul
+ping -n 3 google.com > nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+	"%cecho%" [ {0A}OK{#} ]   Connecting to server . . .
+	set /p "=[ * ]   Downloading from server . . .!_CR!" < nul
+	for %%s in (
+		"loader\%SHORT_BRAND%\%firehosefile%"
+		"xml\%SHORT_BRAND%-%METHOD%-patch.xml"
+		"xml\boot.xml" "xml\patch.xml"
+	) do if exist "%basedir%\data\%%~s" (
+		copy "%basedir%\data\%%~s" "%TMPDIR%\"
+	) else (
+		set "repofile=%%~s"
+		set "repofile=!repofile:\=/!"
+		call %runpwsh% ^
+		"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
+		"Download-Manager -uri %repos%/raw/additional/data/!repofile! -target '%TMPDIR%\%%~nxs'"
+	)
+	"%cecho%" [ {0A}OK{#} ]   Downloading from server . . .
+)
 
 mkdir "%basedir%\data\backup" > nul 2>&1
 
 set "firehose=%TMPDIR%\%firehosefile%"
-set "backup_config=%basedir%\data\backup\%current_time%_config.bin"
-set "backup_efs_fsg=%basedir%\data\backup\%current_time%_fsg"
-set "backup_efs_modemst1=%basedir%\data\backup\%current_time%_modemst1.bin"
-set "backup_efs_modemst2=%basedir%\data\backup\%current_time%_modemst2.bin"
-set "backup_misc=%basedir%\data\backup\%current_time%_misc.img"
-set "backup_persist=%basedir%\data\backup\%current_time%_persist.img"
-set "backup_persistbak=%basedir%\data\backup\%current_time%_persistbak.img"
-set "backup_persistent=%basedir%\data\backup\%current_time%_persistent.img"
+set "ldr_auto=%basedir%\data\loader\auto"
+set "backup_config=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_config.bin"
+set "backup_devinfo=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_devinfo.bin"
+set "backup_efs_fsg=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_fsg"
+set "backup_efs_modemst1=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_modemst1.bin"
+set "backup_efs_modemst2=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_modemst2.bin"
+set "backup_persist=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_persist.img"
+set "backup_persistbak=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_persistbak.img"
+set "backup_persistent=%basedir%\data\backup\%SHORT_BRAND%_%device%_%current_time%_persistent.img"
 
-if /i "%METHOD%"=="userdata" (call :process_userdata) else ^
-if /i "%METHOD%"=="frp"      (
+if /i "%METHOD%"=="userdata"   (call :process_userdata) else ^
+if /i "%METHOD%"=="frp"        (
 	for %%a in (oppo realme vivo) do if "%SHORT_BRAND%"=="%%a" TMPVAR=1
 	if !TMPVAR!==1 (call :process_frp) else (call :process_config)
 ) else ^
-if /i "%METHOD%"=="efs"      (call :process_efs) else ^
-if /i "%METHOD%"=="misc"     (call :process_misc) else ^
-if /i "%METHOD%"=="micloud"  (call :process_micloud_xiaomi)
+if /i "%METHOD%"=="efs"        (call :process_efs) else ^
+if /i "%METHOD%"=="misc"       (call :process_misc) else ^
+if /i "%METHOD%"=="micloud"    (call :process_micloud_xiaomi) else ^
+if /i "%METHOD%"=="unlock-bl"  (call :process_bootloader) else ^
+if /i "%METHOD%"=="relock-bl"  (call :process_bootloader)
 
 if %ERROR_OPT% EQU 1 (pause & exit /b)
 call :reboot_device
@@ -235,7 +286,38 @@ echo.
 echo Selected Model:    %NAME%
 echo Selected Brand:    %BRAND%
 echo Operation:         %METHOD_FULL%
-timeout /nobreak /t 10 > nul
+timeout /nobreak /t 5 > nul
+exit /b
+
+:get_hwid
+set /p "=[ * ]   Connecting to device . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -info > "%TMPDIR%\info.txt"
+"%cecho%" [ {0A}OK{#} ]   Connecting to device . . .
+for /f "tokens=2 " %%x in ('findstr /i "SerialNumber" "%TMPDIR%\info.txt"') do set IDS_SN=%%x
+for /f "tokens=2 " %%y in ('findstr /i "MSM_HW_ID" "%TMPDIR%\info.txt"') do set MSM_HW=%%y0000000000000000
+for /f "tokens=2 delims=2 " %%z in ('findstr /i "OEM_PK_HASH" "%TMPDIR%\info.txt"') do set OEM_PK=%%z
+set IDS_SN=%IDS_SN:~2,8%
+set MSM_HW=%MSM_HW:~2,16%
+set OEM_PK=%OEM_PK:~2,16%
+"%cecho%" IDS SN:  {0b}%IDS_SN%{0f}
+"%cecho%" MSM HW:  {0b}%MSM_HW%{0f}
+"%cecho%" OEM PK:  {0b}%OEM_PK%{0f}
+echo.
+set ResultLoader=%MSM_HW%_%OEM_PK%
+if "%firehose%"=="" (
+	set /p "=[ * ]   Configuring firehose . . .!_CR!" < nul
+	for /f "delims= " %%l in ('where /r %ldr_auto% %ResultLoader%*') do set firehose=%%l
+)
+if "%firehose%"=="" (
+	goto :err_loader
+) else (
+	"%cecho%" [ {0A}OK{#} ]   Configuring firehose . . .
+)
+exit /b
+
+:err_loader
+echo [ ERROR ]   Firehose loader not available.
+echo.
 exit /b
 
 :get_partition
@@ -246,140 +328,93 @@ timeout /nobreak /t 1 > nul
 exit /b
 
 :process_userdata
-for /f "delims= " %%e in ('type "%TMPDIR%\partition.xml" ^| find "userdata"') do (
-	set "line=%%e"
-	set "line=!line:*userdata =!"
-	set /a "result=!line:~1!" 2> nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 " %%f in ('findstr /i "userdata" "%TMPDIR%\partition.xml"') do echo Partition userdata sector:   %%f
-	timeout /nobreak /t 1 > nul
-	set /p "=[ * ]   Erasing userdata . . .!_CR!" < nul
-	call "%downloadbinary%" -p "%COMPORT%" -f "%firehose%" -e userdata -memoryname "%type%" %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing userdata . . .
-) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
-)
+set /p "=[ * ]   Erasing userdata . . .!_CR!" < nul
+call "%downloadbinary%" -p "%COMPORT%" -f "%firehose%" -e userdata -memoryname "%type%" %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing userdata . . .
 exit /b
 
 :process_frp
-for /f "delims= " %%c in ('type "%TMPDIR%\partition.xml" ^| find "frp"') do (
-	set "line=%%c"
-	set "line=!line:*frp =!"
-	set /a "result=!line:~1!" 2> nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 " %%d in ('findstr /i "frp" "%TMPDIR%\partition.xml"') do echo Partition FRP sector:   %%d
-	timeout /nobreak /t 1 > nul
-	set /p "=[ * ]   Erasing FRP . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e frp -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing FRP . . .
-) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
-)
+set /p "=[ * ]   Erasing FRP . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e frp -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing FRP . . .
 exit /b
 
 :process_misc
-for /f "delims= " %%e in ('type "%TMPDIR%\partition.xml" ^| find "misc"') do (
-	set "line=%%e"
-	set "line=!line:*misc =!"
-	set /a "result=!line:~1!" 2> nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 " %%f in ('findstr /i "misc" "%TMPDIR%\partition.xml"') do (
-		echo.Partition misc sector:   %%f
-		type "%TMPDIR%\patch.xml" | "%repl%" "(start_sector=\q).*?(\q.*>)" "$1%%f$2" xi > "%TMPDIR%\patch_mod.xml"
-	)
-	timeout /nobreak /t 2 > nul
-	set /p "=[ * ]   Backing up misc . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d misc "%backup_misc%" -memoryname %type% %QUIET%
-	"%cecho%" [ OK ]  Backing up misc . . .
-	set /p "=[ * ]   Erasing userdata . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -x "%TMPDIR%\patch_mod.xml" -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing userdata . . .
-) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
-)
+set PATCHXML=%TMPDIR%\patch.xml
+set MODPATCH=%TMPDIR%\patch_mod.xml
+for /f "tokens=2 skip=1 delims=SECTOR_SIZE_IN_BYTES= " %%a in ('findstr /i "SECTOR_SIZE_IN_BYTES" "%TMPDIR%\partition.xml"') do ^
+call %runpwsh% (get-content '%PATCHXML%'^) -replace '(SECTOR_SIZE_IN_BYTES=").*?(".*^>^)' '${1}%%a${2}' > "%TMPDIR%\patch_mod.xml"
+for /f "tokens=7 " %%b in ('findstr /i "misc" "%TMPDIR%\partition.xml"') do ^
+call %runpwsh% (get-content '%MODPATCH%'^) -replace '(start_sector=").*?(".*^>^)', '${1}%%b${2}' > "%TMPDIR%\patch_mod.xml"
+set /p "=[ * ]   Erasing userdata . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -x "%TMPDIR%\patch_mod.xml" -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing userdata . . .
 exit /b
 
 :process_config
 if /i "%SHORT_BRAND%"=="samsung" (set TMPVAR=persistent) else (set TMPVAR=config)
-for /f "delims= " %%a in ('type "%TMPDIR%\partition.xml" ^| find "%TMPVAR%"') do (
-	set "line=%%a"
-	set "line=!line:*%TMPVAR% =!"
-	set /a "result=!line:~1!" 2> nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 skip=1 " %%b in ('findstr /i "%TMPVAR%" "%TMPDIR%\partition.xml"') do echo Partition %TMPVAR% sector:   %%b
-	timeout /nobreak /t 1 > nul
-	set /p "=[ * ]   Backing up %TMPVAR% . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d %TMPVAR% "%backup_config%" -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Backing up %TMPVAR% . . .
-	set /p "=[ * ]   Erasing FRP . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e %TMPVAR% -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing FRP . . .
-) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
-)
+set /p "=[ * ]   Backing up %TMPVAR% . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d %TMPVAR% "%backup_config%" -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Backing up %TMPVAR% . . .
+set /p "=[ * ]   Erasing FRP . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e %TMPVAR% -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing FRP . . .
 exit /b
 
 :process_micloud_xiaomi
-for /f "delims= " %%c in ('type "%TMPDIR%\partition.xml" ^| find "persist"') do (
-	set "line=%%c"
-	set "line=!line:*persist =!"
-	set /a "result=!line:~1!" 2> nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 " %%d in ('findstr /i "persist" "%TMPDIR%\partition.xml"') do echo Partition persist sector:   %%d
-	%sleep% 1
-	set /p "=[ * ]   Backing up persist . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d persist "%backup_persist%" -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Backing up persist . . .
-	set /p "=[ * ]   Backing up persistbak . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d persistbak "%backup_persistbak%" -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Backing up persistbak . . .
-	set /p "=[ * ]   Erasing MiCloud . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e persist -memoryname %type% %QUIET%
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e persistbak -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing MiCloud . . .
-) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
-)
+set /p "=[ * ]   Backing up persist . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d persist "%backup_persist%" -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Backing up persist . . .
+set /p "=[ * ]   Backing up persistbak . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d persistbak "%backup_persistbak%" -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Backing up persistbak . . .
+set /p "=[ * ]   Erasing MiCloud . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e persist -memoryname %type% %QUIET%
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e persistbak -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing MiCloud . . .
 exit /b
 
 :process_efs
-for /f "delims= " %%c in ('type "%TMPDIR%\partition.xml" ^| find "fsg"') do (
-	set "line=%%c"
-	set "line=!line:*fsg =!"
-	set /a "result=!line:~1!" 2>nul
-)
-if "%result%" == "1" (
-	for /f "tokens=7 " %%d in ('findstr /i "fsg" "%TMPDIR%\partition.xml"') do echo Partition EFS sector:   %%d
-	%sleep% 1
-	set /p "=[ * ]   Backing up EFS IMEI . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d fsg "%backup_efs_fsg%" -memoryname %type% %QUIET%
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d modemst1 "%backup_efs_modemst1%" -memoryname %type% %QUIET%
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d modemst2 "%backup_efs_modemst2%" -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Backing-up EFS IMEI . . .
-	set /p "=[ * ]   Erasing EFS IMEI . . .!_CR!" < nul
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e fsg -memoryname %type% %QUIET%
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e modemst1 -memoryname %type% %QUIET%
-	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e modemst2 -memoryname %type% %QUIET%
-	"%cecho%" [ {0A}OK{#} ]  Erasing EFS IMEI . . .
+set /p "=[ * ]   Backing up EFS IMEI . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d fsg "%backup_efs_fsg%" -memoryname %type% %QUIET%
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d modemst1 "%backup_efs_modemst1%" -memoryname %type% %QUIET%
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d modemst2 "%backup_efs_modemst2%" -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Backing up EFS IMEI . . .
+set /p "=[ * ]   Erasing EFS IMEI . . .!_CR!" < nul
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e fsg -memoryname %type% %QUIET%
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e modemst1 -memoryname %type% %QUIET%
+call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e modemst2 -memoryname %type% %QUIET%
+"%cecho%" [ {0A}OK{#} ]  Erasing EFS IMEI . . .
+exit /b
+
+:process_bootloader
+if %RUN_BL% EQU 1 (
+	set command=%do_method_fastboot%
+	set /p "=[ * ]   %DO_METHOD% bootloader . . .!_CR!" < nul
+	call "%basedir%\data\fastboot_%SHORT_BRAND%.exe" oem %command% %QUIET% || ^
+	call "%basedir%\data\fastboot_%SHORT_BRAND%.exe" flashing %command% %QUIET% || ^
+	call "%basedir%\data\fastboot.exe" oem %command% %QUIET% || ^
+	call "%basedir%\data\fastboot.exe" flashing %command% %QUIET%
+	"%cecho%" [ {0A}OK{#} ]  %DO_METHOD% bootloader . . .
 ) else (
-	"%cecho%" {0C}ERROR{#}:  %type% damaged.
-	set ERROR_OPT=1
+	set PATCHXML=%TMPDIR%\%SHORT_BRAND%-%METHOD%-patch.xml
+	set MODPATCH=%TMPDIR%\patch_mod.xml
+	for /f "tokens=2 skip=1 delims=SECTOR_SIZE_IN_BYTES= " %%a in ('findstr /i "SECTOR_SIZE_IN_BYTES" "%TMPDIR%\partition.xml"') do ^
+	call %runpwsh% (get-content '%PATCHXML%'^) -replace '(SECTOR_SIZE_IN_BYTES=").*?(".*^>^)' '${1}%%a${2}' > "%TMPDIR%\patch_mod.xml"
+	for /f "tokens=7 " %%b in ('findstr /i "devinfo" "%TMPDIR%\partition.xml"') do ^
+	call %runpwsh% (get-content '%MODPATCH%'^) -replace '(start_sector=").*?(".*^>^)' '${1}%%b${2}' > "%TMPDIR%\patch_mod.xml"
+	set /p "=[ * ]   Backing up devinfo . . .!_CR!" < nul
+	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d devinfo "%backup_devinfo%" -memoryname %type% %QUIET%
+	"%cecho%" [ {0A}OK{#} ]  Backing up devinfo . . .
+	set /p "=[ * ]   %DO_METHOD% bootloader . . .!_CR!" < nul
+	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -x "%TMPDIR%\patch_mod.xml" -memoryname %type% %QUIET%
+	"%cecho%" [ {0A}OK{#} ]  %DO_METHOD% bootloader . . .
 )
 exit /b
 
 :reboot_device
 set /p "=[ * ]   Rebooting device . . .!_CR!" < nul
-timeout /nobreak /t 10 > nul
+timeout /nobreak /t 3 > nul
 call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -x "%TMPDIR%\boot.xml" -memoryname %type% %QUIET%
 "%cecho%" [ {0A}OK{#} ]  Rebooting device . . .
 pause
@@ -388,7 +423,10 @@ exit /b
 :reboot_edl
 set /p "=[ * ]   Rebooting device to EDL mode . . .!_CR!" < nul
 timeout /nobreak /t 10 > nul
-call "%basedir%\fastboot_%SHORT_BRAND%.exe" reboot-edl %QUIET%
+call "%basedir%\data\fastboot_%SHORT_BRAND%.exe" oem edl %QUIET% || ^
+call "%basedir%\data\fastboot_%SHORT_BRAND%.exe" reboot-edl %QUIET% || ^
+call "%basedir%\data\fastboot.exe" oem edl %QUIET% || ^
+call "%basedir%\data\fastboot.exe" reboot-edl %QUIET%
 "%cecho%" [ {0A}OK{#} ]  Rebooting device to EDL mode . . .
 pause
 exit /b
@@ -402,12 +440,12 @@ set "ALREADY=1" || (
 	mkdir "%basedir%\data\drivers\qcser" > nul 2>&1
 
 	echo Installing Qualcomm HS-USB QLoader driver . . .
-	if not exist "%basedir%\data\drivers\qcser" powershell -noprofile -command ^
+	if not exist "%basedir%\data\drivers\qcser" %runpwsh% ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/master/data/drivers/qcser.zip -target '%TMPDIR%\qcser.zip';" ^
+	"Download-Manager -uri %repos%/raw/additional/data/drivers/qcser.zip -target '%TMPDIR%\qcser.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\qcser.zip' -destinationpath '%basedir%\data\drivers\qcser\'"
 
-	powershell -noprofile -command ^
+	%runpwsh% ^
 	"Start-Process -filepath pnputil.exe" ^
 	"-argumentlist '-i -a "%basedir%\data\drivers\qcser\%ARCH%\qcser.inf"'" ^
 	"-wait -windowstyle hidden -verb runas"
@@ -420,12 +458,12 @@ set "ALREADY=1" || (
 	mkdir "%basedir%\data\drivers\adb_usb" > nul 2>&1
 
 	echo Installing Android Debug Bridge USB driver . . .
-	if not exist "%basedir%\data\drivers\adb_usb" powershell -noprofile -command ^
+	if not exist "%basedir%\data\drivers\adb_usb" %runpwsh% ^
 	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/master/data/drivers/adb_usb.zip -target '%TMPDIR%\adb_usb.zip';" ^
+	"Download-Manager -uri %repos%/raw/additional/data/drivers/adb_usb.zip -target '%TMPDIR%\adb_usb.zip';" ^
 	"Extract-Zip -zipfile '%TMPDIR%\adb_usb.zip' -destinationpath '%basedir%\data\drivers\adb_usb\'"
 
-	powershell -noprofile -command ^
+	%runpwsh% ^
 	"Start-Process -filepath pnputil.exe" ^
 	"-argumentlist '-i -a "%basedir%\data\drivers\adb_usb\android_winusb.inf"'" ^
 	"-wait -windowstyle hidden -verb runas"
@@ -459,10 +497,11 @@ exit /b
 :show_usage
 echo USAGE:  %~n0 ^<device^> [OPTION]...
 echo.
-echo     -d, --install-drivers    install driver
 echo     -E, --reboot-edl         reboot device in EDL mode
 echo     -h, --help               show help usage
-echo     -M, --method             choose what do you execute
+echo     -M, --method=^<METHOD^>    choose what do you execute
+echo     -P, --port=^<PORT^>        set port connection
+echo     -s, --serial-adb=^<sn^>    set ADB serial number connection
 echo     -v, --verbose            explain what is being done
 echo         --version            show script file version and credits
 echo.
@@ -470,19 +509,31 @@ echo To see device list, type  %~n0 --list-available
 endlocal
 exit /b
 
+:show_help_method
+echo Do erase or reset partition:
+echo     userdata
+echo     frp
+echo     efs
+echo     misc
+echo     micloud
+echo     unlock-bl
+echo     relock-bl
+endlocal
+exit /b
+
 :show_credits
-echo Qualcomm Flasher Tool for Linux
+echo TFF/QC Tools for Windows
 echo Unlock and flash the Android phone devices.
-echo Version report:  1.0 revision 1
+echo Version report:  1.0 revision 2
 echo.
-echo This script created by Faizal Hamzah [The Firefox Flasher].
+echo This script developed by Faizal Hamzah [The Firefox Flasher].
 echo Licensed under the MIT License.
 echo.
 echo Credits:
-echo     nijel8            Developer of emmcdl binary
-echo     bjoerkerler       Qualcomm Firehose Attacker source code
-echo     Hari Sulteng      Qualcomm GSM Sulteng
-echo     Hadi Khoirudin    Qualcomm Tools, a simple unlocker
+echo     nijel8            Developer of emmcdl
+echo     bkerler           Developer of Qualcomm Firehose Attacker
+echo     Hari Sulteng      Owner of Qualcomm GSM Sulteng
+echo     Hadi Khoirudin    Software engineer
 endlocal
 exit /b
 
@@ -490,94 +541,95 @@ exit /b
 echo Devices list available in this tools:
 echo.
 echo Oppo:
-echo     a33_cph2137            Oppo A33
-echo     a53_cph2127            Oppo A53
-echo     a53s_cph2139           Oppo A53S
-echo     a73_cph2099            Oppo A73
-echo     a74_cph2219            Oppo A74
-echo     a76_cph2375            Oppo A76
-echo     a95_cph2365            Oppo A95
-echo     f17_cph2095            Oppo F17
-echo     f19_cph2219            Oppo F19
-echo     f21pro_cph2219         Oppo F21 Pro
-echo     reno4old_cph2113       Oppo Reno4
-echo     reno4new_cph2113       Oppo Reno4
-echo     reno4pro_cph2109       Oppo Reno4 Pro
-echo     reno5_cph2159          Oppo Reno5
-echo     reno6_cph2235          Oppo Reno6
-echo     reno7_cph2363          Oppo Reno7
+echo     oppo_a33_cph2137             Oppo A33
+echo     oppo_a53_cph2127             Oppo A53
+echo     oppo_a53s_cph2139            Oppo A53S
+echo     oppo_a73_cph2099             Oppo A73
+echo     oppo_a74_cph2219             Oppo A74
+echo     oppo_a76_cph2375             Oppo A76
+echo     oppo_a95_cph2365             Oppo A95
+echo     oppo_f17_cph2095             Oppo F17
+echo     oppo_f19_cph2219             Oppo F19
+echo     oppo_f21pro_cph2219          Oppo F21 Pro
+echo     oppo_reno4_oldsec_cph2113    Oppo Reno4
+echo     oppo_reno4_newsec_cph2113    Oppo Reno4
+echo     oppo_reno4pro_cph2109        Oppo Reno4 Pro
+echo     oppo_reno5_cph2159           Oppo Reno5
+echo     oppo_reno6_cph2235           Oppo Reno6
+echo     oppo_reno7_cph2363           Oppo Reno7
 echo.
 echo Realme:
-echo     realme6pro_rmx2061     Realme 6 Pro
-echo     realme7i_rmx2103       Realme 7i
-echo     realme7pro_rmx2170     Realme 7 Pro
-echo     realme8pro_rmx3091     Realme 8 Pro
-echo     realme9_rmx3521        Realme 9
-echo     realmec15_rmx2195      Realme C15
-echo     realmec17_rmx2101      Realme C17
+echo     realme6pro_rmx2061           Realme 6 Pro
+echo     realme7i_rmx2103             Realme 7i
+echo     realme7pro_rmx2170           Realme 7 Pro
+echo     realme8pro_rmx3091           Realme 8 Pro
+echo     realme9_rmx3521              Realme 9
+echo     realmec15_rmx2195            Realme C15
+echo     realmec17_rmx2101            Realme C17
 echo.
 echo Vivo:
-echo     vivo_iq00              Vivo IQ00 UI
-echo     vivo_y20_oldsec        Vivo Y20
-echo     vivo_y20_newsec        Vivo Y20
-echo     vivo_y50t              Vivo Y50T
-echo     vivo_y53               Vivo Y53
-echo     vivo_y55               Vivo Y55/L
-echo     vivo_y65               Vivo Y65
-echo     vivo_y71               Vivo Y71
-echo     vivo_y91               Vivo Y91/i
-echo     vivo_y93               Vivo Y93
-echo     vivo_y95               Vivo Y95
-echo     vivo_v9                Vivo V9
-echo     vivo_v9yth             Vivo V9 Youth
-echo     vivo_v11pro            Vivo V11 Pro
-echo     vivo_v20_newsec        Vivo V20
-echo     vivo_v21e              Vivo V21E
+echo     vivo_iq00                    Vivo IQ00 UI
+echo     vivo_y20_oldsec              Vivo Y20
+echo     vivo_y20_newsec              Vivo Y20
+echo     vivo_y50t                    Vivo Y50T
+echo     vivo_y53                     Vivo Y53
+echo     vivo_y55                     Vivo Y55/L
+echo     vivo_y65                     Vivo Y65
+echo     vivo_y71                     Vivo Y71
+echo     vivo_y91                     Vivo Y91/i
+echo     vivo_y93                     Vivo Y93
+echo     vivo_y95                     Vivo Y95
+echo     vivo_v9                      Vivo V9
+echo     vivo_v9yth                   Vivo V9 Youth
+echo     vivo_v11pro                  Vivo V11 Pro
+echo     vivo_v20_newsec              Vivo V20
+echo     vivo_v21e                    Vivo V21E
 echo.
 echo Xiaomi / Poco:
-echo     mi8ee_ursa             Xiaomi Mi 8 EE
-echo     mi8se_sirius           Xiaomi Mi 8 SE
-echo     mi8ud_equuleus         Xiaomi Mi 8 UD
-echo     mi9t_raphael           Xiaomi Mi 9T
-echo     mi10lite_toco          Xiaomi Mi 10 Lite
-echo     mi11tpro_vili          Xiaomi 11T Pro
-echo     mia2_jasmine           Xiaomi Mi A2
-echo     mia2lite_daisy         Xiaomi Mi A2 Lite
-echo     mimax2_chiron          Xiaomi Mi Max 2
-echo     mimax3_nitrogen        Xiaomi Mi Max 3
-echo     mimix_lithium          Xiaomi Mi Mix
-echo     mimix2s_polaris        Xiaomi Mi Mix 2s
-echo     mimix3_perseus         Xiaomi Mi Mix 3
-echo     minote2_scorpio        Xiaomi Mi Note 2
-echo     minote3_jason          Xiaomi Mi Note 3
-echo     mipad4_clover          Xiaomi Mi Pad 4
-echo     pocof1_beryllium       Xiaomi Pocophone F1
-echo     pocom2pro_gramin       Xiaomi Pocophone M2 Pro
-echo     pocom3_citrus          Xiaomi Pocophone M3
-echo     redmi5a_riva           Xiaomi Redmi 5A
-echo     redmi6pro_sakura       Xiaomi Redmi 6 Pro
-echo     redmi7_onclite         Xiaomi Redmi 7
-echo     redmi9t_lime           Xiaomi Redmi 9T
-echo     redmik20pro_raphael    Xiaomi Redmi K20 Pro
-echo     note5_whyred           Xiaomi Redmi Note 5
-echo     note5pro_whyred        Xiaomi Redmi Note 5 Pro
-echo     note5a_ugglite         Xiaomi Redmi Note 5a
-echo     note6pro_tulip         Xiaomi Redmi Note 6 Pro
-echo     note8_ginkgo           Xiaomi Redmi Note 8
-echo     note9s_curtana         Xiaomi Redmi Note 9S
-echo     note9pro_joyeuse       Xiaomi Redmi Note 9 Pro
+echo     mi8ee_ursa                   Xiaomi Mi 8 EE
+echo     mi8se_sirius                 Xiaomi Mi 8 SE
+echo     mi8ud_equuleus               Xiaomi Mi 8 UD
+echo     mi9t_raphael                 Xiaomi Mi 9T
+echo     mi10lite_toco                Xiaomi Mi 10 Lite
+echo     mi11tpro_vili                Xiaomi 11T Pro
+echo     mia2_jasmine                 Xiaomi Mi A2
+echo     mia2lite_daisy               Xiaomi Mi A2 Lite
+echo     mimax2_chiron                Xiaomi Mi Max 2
+echo     mimax3_nitrogen              Xiaomi Mi Max 3
+echo     mimix_lithium                Xiaomi Mi Mix
+echo     mimix2s_polaris              Xiaomi Mi Mix 2s
+echo     mimix3_perseus               Xiaomi Mi Mix 3
+echo     minote2_scorpio              Xiaomi Mi Note 2
+echo     minote3_jason                Xiaomi Mi Note 3
+echo     mipad4_clover                Xiaomi Mi Pad 4
+echo     pocof1_beryllium             Xiaomi Pocophone F1
+echo     pocom2pro_gramin             Xiaomi Pocophone M2 Pro
+echo     pocom3_citrus                Xiaomi Pocophone M3
+echo     redmi5a_riva                 Xiaomi Redmi 5A
+echo     redmi6pro_sakura             Xiaomi Redmi 6 Pro
+echo     redmi7_onclite               Xiaomi Redmi 7
+echo     redmi9t_lime                 Xiaomi Redmi 9T
+echo     redmik20pro_raphael          Xiaomi Redmi K20 Pro
+echo     note5_whyred                 Xiaomi Redmi Note 5
+echo     note5pro_whyred              Xiaomi Redmi Note 5 Pro
+echo     note5a_ugglite               Xiaomi Redmi Note 5a
+echo     note6pro_tulip               Xiaomi Redmi Note 6 Pro
+echo     note7_lavender               Xiaomi Redmi Note 7
+echo     note8_ginkgo                 Xiaomi Redmi Note 8
+echo     note9s_curtana               Xiaomi Redmi Note 9S
+echo     note9pro_joyeuse             Xiaomi Redmi Note 9 Pro
 echo.
 echo Samsung:
-echo     sm_a015f               Samsung Galaxy A01
-echo     sm_a025f               Samsung Galaxy A02s
-echo     sm_a115a               Samsung Galaxy A11
-echo     sm_a115f               Samsung Galaxy A11
-echo     sm_a115u               Samsung Galaxy A11
-echo     sm_a705f               Samsung Galaxy A70
-echo     sm_j415f               Samsung Galaxy J4 Plus
-echo     sm_j610f               Samsung Galaxy J6 Plus
-echo     sm_m025f               Samsung Galaxy M02s
-echo     sm_m115f               Samsung Galaxy M11
+echo     sm_a015f                     Samsung Galaxy A01
+echo     sm_a025f                     Samsung Galaxy A02s
+echo     sm_a115a                     Samsung Galaxy A11
+echo     sm_a115f                     Samsung Galaxy A11
+echo     sm_a115u                     Samsung Galaxy A11
+echo     sm_a705f                     Samsung Galaxy A70
+echo     sm_j415f                     Samsung Galaxy J4 Plus
+echo     sm_j610f                     Samsung Galaxy J6 Plus
+echo     sm_m025f                     Samsung Galaxy M02s
+echo     sm_m115f                     Samsung Galaxy M11
 endlocal
 exit /b
 
@@ -639,146 +691,146 @@ exit /b
 
 :: ############################################# START OPPO ################################################ ::
 
-:a33_cph2137
+:oppo_a33_cph2137
 set NAME=Oppo A33 (CPH-2137^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a33_cph2137
+set DEVICE=oppo_a33_cph2137
 set firehosefile=prog_firehose_ddr_Oppo_A33_A53_A53s.elf
 set type=emmc
 exit /b
 
-:a53_cph2127
+:oppo_a53_cph2127
 set NAME=Oppo A53 (CPH-2127^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a53_cph2127
+set DEVICE=oppo_a53_cph2127
 set firehosefile=prog_firehose_ddr_Oppo_A33_A53_A53s.elf
 set type=ufs
 exit /b
 
-:a53s_cph2139
+:oppo_a53s_cph2139
 set NAME=Oppo A53s (CPH-2139^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a53s_cph2139
+set DEVICE=oppo_a53s_cph2139
 set firehosefile=prog_firehose_ddr_Oppo_A33_A53_A53s.elf
 set type=emmc
 exit /b
 
-:a73_cph2099
+:oppo_a73_cph2099
 set NAME=Oppo A73 (CPH-2099^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a73_cph2099
+set DEVICE=oppo_a73_cph2099
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:a74_cph2219
+:oppo_a74_cph2219
 set NAME=Oppo A74 (CPH-2219^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a74_cph2219
+set DEVICE=oppo_a74_cph2219
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:a76_cph2375
+:oppo_a76_cph2375
 set NAME=Oppo A76 (CPH-2375^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a76_cph2375
+set DEVICE=oppo_a76_cph2375
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:a95_cph2365
+:oppo_a95_cph2365
 set NAME=Oppo A95 (CPH-2365^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=a95_cph2365
+set DEVICE=oppo_a95_cph2365
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:f17_cph2095
+:oppo_f17_cph2095
 set NAME=Oppo F17 (CPH-2095^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=f17_cph2095
+set DEVICE=oppo_f17_cph2095
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:f19_cph2219
+:oppo_f19_cph2219
 set NAME=Oppo F19 (CPH-2219^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=f19_cph2219
+set DEVICE=oppo_f19_cph2219
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:f21pro_cph2219
+:oppo_f21pro_cph2219
 set NAME=Oppo F21 Pro (CPH-2219^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=f21pro_cph2219
+set DEVICE=oppo_f21pro_cph2219
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
 
-:reno4old_cph2113
-set NAME=Oppo Reno4 (CPH-2113^)
+:oppo_reno4_oldsec_cph2113
+set NAME=Oppo Reno4 [Old security] (CPH-2113^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno4_cph2113
+set DEVICE=oppo_reno4_cph2113
 set firehosefile=prog_firehose_ddr_OppoReno4OldSec2019.mbn
 set type=ufs
 exit /b
 
-:reno4new_cph2113
-set NAME=Oppo Reno4 (CPH-2113^)
+:oppo_reno4_newsec_cph2113
+set NAME=Oppo Reno4 [New security] (CPH-2113^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno4_cph2113
+set DEVICE=oppo_reno4_cph2113
 set firehosefile=prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf
 type=ufs
 exit /b
 
-:reno4pro_cph2109
+:oppo_reno4pro_cph2109
 set NAME=Oppo Reno4 Pro (CPH-2109^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno4pro_cph2109
+set DEVICE=oppo_reno4pro_cph2109
 set firehosefile=prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf
 set type=ufs
 exit /b
 
-:reno5_cph2159
+:oppo_reno5_cph2159
 set NAME=Oppo Reno5 (CPH-2159^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno5_cph2159
+set DEVICE=oppo_reno5_cph2159
 set firehosefile=prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf
 set type=ufs
 exit /b
 
-:reno6_cph2235
+:oppo_reno6_cph2235
 set NAME=Oppo Reno6 (CPH-2235^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno6_cph2235
+set DEVICE=oppo_reno6_cph2235
 set firehosefile=prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf
 set type=ufs
 exit /b
 
-:reno7_cph2363
+:oppo_reno7_cph2363
 set NAME=Oppo Reno7 (CPH-2363^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=oppo
-set DEVICE=reno7_cph2363
+set DEVICE=oppo_reno7_cph2363
 set firehosefile=prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf
 set type=ufs
 exit /b
@@ -790,7 +842,7 @@ exit /b
 set NAME=Realme 6 Pro (RMX-2061^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=6pro_rmx2061
+set DEVICE=realme6pro_rmx2061
 set firehosefile=prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf
 set type=ufs
 exit /b
@@ -799,7 +851,7 @@ exit /b
 set NAME=Realme 7i (RMX-2103^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=7i_rmx2103
+set DEVICE=realme7i_rmx2103
 set firehosefile=prog_firehose_ddr_Realme7iRMX2103_Realme9RMX3521.elf
 set type=ufs
 exit /b
@@ -808,7 +860,7 @@ exit /b
 set NAME=Realme 7 Pro (RMX-2170^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=7pro_rmx2170
+set DEVICE=realme7pro_rmx2170
 set firehosefile=prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf
 set type=ufs
 exit /b
@@ -817,7 +869,7 @@ exit /b
 set NAME=Realme 8 Pro (RMX-3091^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=8pro_rmx3091
+set DEVICE=realme8pro_rmx3091
 set firehosefile=prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf
 set type=ufs
 exit /b
@@ -826,7 +878,7 @@ exit /b
 set NAME=Realme 9 (RMX-3521^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=9_rmx3521
+set DEVICE=realme9_rmx3521
 set firehosefile=prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf
 set type=ufs
 exit /b
@@ -835,7 +887,7 @@ exit /b
 set NAME=Realme C15 (RMX-2195^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=c15_rmx2195
+set DEVICE=realmec15_rmx2195
 set firehosefile=prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf
 set type=emmc
 exit /b
@@ -844,7 +896,7 @@ exit /b
 set NAME=Realme C17 (RMX-2101^)
 set BRAND=Oppo/Realme
 set SHORT_BRAND=realme
-set DEVICE=c17_rmx2101
+set DEVICE=realmec17_rmx2101
 set firehosefile=prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf
 set type=ufs
 exit /b
@@ -856,25 +908,25 @@ exit /b
 set NAME=Vivo IQ00 UI
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=iq00
+set DEVICE=vivo_iq00
 set firehosefile=prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf
 set type=ufs
 exit /b
 
 :vivo_y20_oldsec
-set NAME=Vivo Y20
+set NAME=Vivo Y20 [Old security]
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y20
+set DEVICE=vivo_y20
 set firehosefile=prog_firehose_ddr_vivo_Y20_Y20i_Y20s.elf
 set type=emmc
 exit /b
 
 :vivo_y20_newsec
-set NAME=Vivo Y20
+set NAME=Vivo Y20 [New security]
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y20
+set DEVICE=vivo_y20
 set firehosefile=prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf
 set type=emmc
 exit /b
@@ -883,7 +935,7 @@ exit /b
 set NAME=Vivo Y50T
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y50t
+set DEVICE=vivo_y50t
 set firehosefile=prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf
 set type=ufs
 exit /b
@@ -892,7 +944,7 @@ exit /b
 set NAME=Vivo Y53
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y53
+set DEVICE=vivo_y53
 set firehosefile=prog_firehose_8917_ddr_vivo_y53_y53l.mbn
 set type=emmc
 exit /b
@@ -901,7 +953,7 @@ exit /b
 set NAME=Vivo Y55/L
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y55
+set DEVICE=vivo_y55
 set firehosefile=prog_emmc_firehose_8937_y91_y93_y95_v11.mbn
 set type=emmc
 exit /b
@@ -910,7 +962,7 @@ exit /b
 set NAME=Vivo Y65
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y65
+set DEVICE=vivo_y65
 set firehosefile=prog_firehose_8917_ddr_vivo_y65.mbn
 set type=emmc
 exit /b
@@ -919,7 +971,7 @@ exit /b
 set NAME=Vivo Y71
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y71
+set DEVICE=vivo_y71
 set firehosefile=prog_firehose_8917_ddr_vivo_y71.mbn
 set type=emmc
 exit /b
@@ -928,7 +980,7 @@ exit /b
 set NAME=Vivo Y91/i
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y91
+set DEVICE=vivo_y91
 set firehosefile=prog_emmc_firehose_8937_y91_y93_y95_v11.mbn
 set type=emmc
 exit /b
@@ -937,7 +989,7 @@ exit /b
 set NAME=Vivo Y93
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y93
+set DEVICE=vivo_y93
 set firehosefile=prog_emmc_firehose_8937_y91_y93_y95_v11.mbn
 set type=emmc
 exit /b
@@ -946,7 +998,7 @@ exit /b
 set NAME=Vivo Y95
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=y95
+set DEVICE=vivo_y95
 set firehosefile=prog_emmc_firehose_8937_y91_y93_y95_v11.mbn
 set type=emmc
 exit /b
@@ -955,7 +1007,7 @@ exit /b
 set NAME=Vivo V9
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=v9
+set DEVICE=vivo_v9
 set firehosefile=prog_emmc_firehose_8953_ddr_vivo_v9.mbn
 set type=emmc
 exit /b
@@ -964,7 +1016,7 @@ exit /b
 set NAME=Vivo V9 Youth
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=v9yth
+set DEVICE=vivo_v9yth
 set firehosefile=prog_emmc_firehose_8953_ddr_vivo_v9_youth.mbn
 set type=emmc
 exit /b
@@ -973,16 +1025,16 @@ exit /b
 set NAME=Vivo V11 Pro
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=v11pro
+set DEVICE=vivo_v11pro
 set firehosefile=prog_emmc_firehose_8937_y91_y93_y95_v11.mbn
 set type=emmc
 exit /b
 
 :vivo_v20_newsec
-set NAME=Vivo V20
+set NAME=Vivo V20 [New security]
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=v20
+set DEVICE=vivo_v20
 set firehosefile=prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf
 set type=ufs
 exit /b
@@ -991,7 +1043,7 @@ exit /b
 set NAME=Vivo V21E
 set BRAND=Vivo
 set SHORT_BRAND=vivo
-set DEVICE=v21e
+set DEVICE=vivo_v21e
 set firehosefile=prog_firehose_ddr_vivo_V21e.elf
 set type=ufs
 exit /b
@@ -1251,6 +1303,15 @@ set firehosefile=prog_emmc_firehose_Sdm660_ddr_xiaomi_note6pro_tulip_s_rb4.elf
 set type=emmc
 exit /b
 
+:note7_lavender
+set NAME=Xiaomi Redmi Note 7 (Lavender^)
+set BRAND=Xiaomi
+set SHORT_BRAND=xiaomi
+set DEVICE=lavender
+set firehosefile=prog_emmc_firehose_Sdm660_ddr_redminote7_lavender.mbn
+set type=emmc
+exit /b
+
 :note8_ginkgo
 set NAME=Xiaomi Redmi Note 8 (Ginkgo^)
 set BRAND=Xiaomi
@@ -1417,8 +1478,8 @@ if [ ! -x "$downloadbinary" ] ; then
 	done
 
 	[ -d "$basedir/data/sources/emmcdl" ] || {
-		wget -qO /var/tmp/emmcdl.zip $repos/raw/master/data/sources/emmcdl.zip
-		unzip -q /var/tmp/emmcdl.zip -d "$basedir/data/sources/emmcdl"
+		wget -qO "$TMPDIR/emmcdl.zip" $repos/raw/additional/data/sources/emmcdl.zip
+		unzip -q "$TMPDIR/emmcdl.zip" -d "$basedir/data/sources/emmcdl"
 	}
 	[ -d "$basedir/data/sources/emmcdl" ] && cd "$basedir/data/sources/emmcdl"
 	( aclocal && autoconf && automake --add-missing ) >/dev/null 2>&1
@@ -1442,15 +1503,15 @@ if [ ! -z $NO_ADB ] ; then
 	}
 	done
 
-	wget -qO /var/tmp/platform-tools.zip https://dl.google.com/android/repository/platform-tools_r28.0.1-linux.zip
-	unzip -q /var/tmp/platform-tools.zip -d "/var/tmp"
+	wget -qO "$TMPDIR/platform-tools.zip" https://dl.google.com/android/repository/platform-tools_r28.0.1-linux.zip
+	unzip -q "$TMPDIR/platform-tools.zip" -d "/var/tmp"
 	for a in adb fastboot; do
 	mv /var/tmp/platform-tools/$a "$basedir/$a" >/dev/null 2>&1 || {
 		echo "platform-tools is not found."
 		exit 1
 	}
 	done
-	rm -rf /var/tmp/platform-tools /var/tmp/platform-tools.zip >/dev/null 2>&1
+	rm -rf /var/tmp/platform-tools "$TMPDIR/platform-tools.zip" >/dev/null 2>&1
 fi
 PATH="$basedir/data:$PATH"
 cd "$basedir"
@@ -1464,27 +1525,51 @@ current_time() {
 }
 
 execution() {
-	lsusb 2>&1 | grep "Qualcomm.*USB" >/dev/null || {
-		printf "%s\n" $'\n'"Error:  Qualcomm HS-USB port not detected."$'\n'
-		exit 1
-	}
+	if [ -z $COMPORT ]; then
+		echo $'[ * ]   Searching port connected . . . \r'
+		lsusb 2>&1 | grep "Qualcomm.*USB" >/dev/null || {
+			printf "%s\n" $'\n'"Error:  Qualcomm HS-USB port not detected."$'\n'
+			exit 1
+		}
+		for (( a=1; a <= 100; a++ )); do
+		for port_connected in \
+		"$(dmesg | awk '/tty/ && /USB/ {print "/dev/"$1$a}' | tail -1)"; do
+		[ "$port_connected" == "" ] || COMPORT="$port_connected"
+		done; done
+		echo $'[ \e[1;32mOK\e[0m ]   Searching port connected . . . '
+	fi
+	echo $'Port:   '$COMPORT
 
+	get_hwid
 	get_partition
 
-	wget -qO "$TMPDIR/$firehosefile" $repos/raw/master/data/loader/$SHORT_BRAND/$firehosefile
-	wget -qO "$TMPDIR/boot.xml" $repos/raw/master/data/xml/boot.xml
-	wget -qO "$TMPDIR/patch.xml" $repos/raw/master/data/xml/patch.xml
+	echo $'[ * ]   Connecting to server . . . \r'
+	ping -c 3 google.com > /dev/null 2>&1
+	[ $? -eq 0 ] && {
+		echo $'[ \e[1;32mOK\e[0m ]   Connecting to server . . . '
+		echo $'[ * ]   Downloading from server . . . \r'
+		for requirement in \
+			"loader/$SHORT_BRAND/$firehosefile" \
+			"xml/${SHORT_BRAND}-${METHOD}-patch.xml" \
+			"xml/boot.xml" "xml/patch.xml"; do
+		[ -f "$basedir/data/$requirement" ] && \
+		cp "$basedir/data/$requirement" "$TMPDIR/" || \
+		wget -qO "$TMPDIR/$(basename $requirement)" $repos/raw/additional/data/$requirement
+		done
+		echo $'[ \e[1;32mOK\e[0m ]   Downloading from server . . . '
+	}
 	mkdir -p "$basedir/data/backup" >/dev/null 2>&1
 
 	firehose="$TMPDIR/$firehosefile"
-	backup_config="$basedir/data/backup/$(current_time)_config.bin"
-	backup_efs_fsg="$basedir/data/backup/$(current_time)_fsg"
-	backup_efs_modemst1="$basedir/data/backup/$(current_time)_modemst1.bin"
-	backup_efs_modemst2="$basedir/data/backup/$(current_time)_modemst2.bin"
-	backup_misc="$basedir/data/backup/$(current_time)_misc.img"
-	backup_persist="$basedir/data/backup/$(current_time)_persist.img"
-	backup_persistbak="$basedir/data/backup/$(current_time)_persistbak.img"
-	backup_persistent="$basedir/data/backup/$(current_time)_persistent.img"
+	backup_config="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_config.bin"
+	backup_devinfo="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_devinfo.bin"
+	backup_efs_fsg="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_fsg"
+	backup_efs_modemst1="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_modemst1.bin"
+	backup_efs_modemst2="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_modemst2.bin"
+	backup_misc="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_misc.img"
+	backup_persist="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_persist.img"
+	backup_persistbak="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_persistbak.img"
+	backup_persistent="$basedir/data/backup/${SHORT_BRAND}_${DEVICE}_$(current_time)_persistent.img"
 
 	case $METHOD in
 		"userdata" )
@@ -1507,6 +1592,9 @@ execution() {
 		"micloud" )
 		  process_micloud_xiaomi
 		  ;;
+		"unlock-bl" | "relock-bl" )
+		  process_bootloader
+		  ;;
 	esac
 	reboot_device
 }
@@ -1517,143 +1605,162 @@ Selected Model:    $NAME
 Selected Brand:    $BRAND
 Operation:         $METHOD_FULL
 "
-	sleep 10
+	sleep 5
+}
+
+get_hwid() {
+	echo $'[ * ]   Connecting to device . . . \r'
+	eval "$downloadbinary" -p $COMPORT -info > "$TMPDIR/info.txt"
+	echo $'[ \e[1;32mOK\e[0m ]   Connecting to device . . . '
+	IDS_SN="$(grep "SerialNumber" "$TMPDIR/info.txt" | cut -f2 -d\: | cut -f2 -dx)"
+	MSM_HW="$(grep "MSM_HW_ID" "$TMPDIR/info.txt" | cut -f2 -d\: | cut -f2 -dx)"
+	OEM_PK="$(grep "OEM_PK_HASH" "$TMPDIR/info.txt" | cut -f2 -d\: | cut -f2 -dx)"
+
+	printf "%s\n" "\
+IDS SN:  "$'\e[1;33m'"${IDS_SN}"$'\e[0m'"
+MSM HW:  "$'\e[1;33m'"${MSM_HW}0000000000000000"$'\e[0m'"
+OEM PK:  "$'\e[1;33m'"${OEM_PK}"$'\e[0m'"
+"
+
+	ResultLoader="${MSM_HW}0000000000000000_${OEM_PK}"
+	if [ -z "$firehose" ]; then
+		echo $'[ * ]   Configuring firehose . . . \r'
+		firehose="$(find "$basedir" | grep "${ResultLoader}")"
+	fi
+	if [ -z "$firehose" ]; then
+		echo $'[ \e[1;31mERROR\e[0m ]   Firehose loader not available.'
+		echo
+		exit 1
+	else
+		echo $'[ \e[1;32mOK\e[0m ]   Configuring firehose . . . '
+	fi
 }
 
 get_partition() {
 	echo $'[ * ]   Configuring device . . . \r'
-	eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -gpt -memoryname $type > "$TMPDIR/partition.xml"
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -gpt -memoryname $type > "$TMPDIR/partition.xml"
 	sleep 1
 	echo $'[ \e[1;32mOK\e[0m ]  Configuring device . . . '
 }
 
 process_userdata() {
-	for f in $(cat $TMPDIR/partition.xml | tr -d ' '); do
-		[ "${f//*userdata /}" == "1" ] && {
-			echo "Partition userdata sector:   $(grep "userdata" "$TMPDIR/partition.xml" | cut -f7)"
-			sleep 1
-			echo $'[ * ]   Erasing userdata . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e userdata -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing userdata . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
-	done
+	echo $'[ * ]   Erasing userdata . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e userdata -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing userdata . . . '
 }
 
 process_frp() {
-	for f in $(cat $TMPDIR/partition.xml | tr -d ' '); do
-		[ "${f//*frp /}" == "1" ] && {
-			echo "Partition FRP sector:   $(grep "frp" "$TMPDIR/partition.xml" | cut -f7)"
-			sleep 1
-			echo $'[ * ]   Erasing FRP . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e frp -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing FRP . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
-	done
+	echo $'[ * ]   Erasing FRP . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e frp -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing FRP . . . '
 }
 
 process_misc() {
-	for f in $(cat $TMPDIR/partition.xml | tr -d ' '); do
-		[ "${f//*misc /}" == "1" ] && {
-			for sector in $(grep "misc" "$TMPDIR/partition.xml" | cut -f7); do
-				echo "Partition misc sector:   $sector"
-				sed -E "s/(start_sector=\").*?(\".*[a-z]=\".*[a-z]=\".*>)/\1${sector}\2/" \
-				"$TMPDIR/patch.xml" > "$TMPDIR/patch_mod.xml"
-			done
-			sleep 2
-			echo $'[ * ]   Backing up misc . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d misc "$backup_misc" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Backing up misc . . . '
-			echo $'[ * ]   Erasing userdata . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -x "$TMPDIR/patch_mod.xml" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing userdata . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
+	cp "$TMPDIR/patch.xml" "$TMPDIR/patch_mod.xml"
+	for sector in $(grep "SECTOR_SIZE_IN_BYTES" "$TMPDIR/partition.xml" | \
+		sed -E "s/.*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*/\1/" | tail -n 1); do
+		for (( i=1; i <= 7; i++ )); do skip="${skip}.*[a-z]=\""; done
+		sed -iE "s/(SECTOR_SIZE_IN_BYTES=\").*?(\"${skip}.*)/\1${sector}\2/" "$TMPDIR/patch_mod.xml"
+		unset skip
 	done
+
+	for sector in $(grep "misc" "$TMPDIR/partition.xml" | cut -f7 -d" "); do
+		for (( i=1; i <= 2; i++ )); do skip="${skip}.*[a-z]=\""; done
+		sed -iE "s/(start_sector=\").*?(\".*[a-z]=\".*[a-z]=\".*)/\1${sector}\2/" "$TMPDIR/patch_mod.xml"
+		unset skip
+	done
+
+	echo $'[ * ]   Backing up misc . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d misc "$backup_misc" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Backing up misc . . . '
+	echo $'[ * ]   Erasing userdata . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -x "$TMPDIR/patch_mod.xml" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing userdata . . . '
 }
 
 process_config() {
-	[ "$SHORT_BRAND" = "samsung" ] && \
-	TMPVAR="persistent" || TMPVAR="config"
-	for f in $(cat $TMPDIR/partition.xml | grep "$TMPVAR" | tr -d ' '); do
-		[ "${f//*$TMPVAR /}" == "1" ] && {
-			echo "Partition $TMPVAR sector:   $(grep "$TMPVAR" "$TMPDIR/partition.xml" | cut -f7)"
-			sleep 1
-			echo $'[ * ]   Backing up $TMPVAR . . . \r'
-			[ "$SHORT_BRAND" = "samsung" ] && \
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d $TMPVAR "$backup_persistent" -memoryname $type $QUIET || \
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d $TMPVAR "$backup_config" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Backing up $TMPVAR . . . '
-			echo $'[ * ]   Erasing FRP . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e config -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing FRP . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
-	done
+	[ "$SHORT_BRAND" = "samsung" ] && {
+		TMPVAR="persistent"
+		backups="$backup_persistent"
+	} || {
+		TMPVAR="config"
+		backups="$backup_config"
+	}
+
+	echo $'[ * ]   Backing up $TMPVAR . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d $TMPVAR "$backups" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Backing up $TMPVAR . . . '
+	echo $'[ * ]   Erasing FRP . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e $TMPVAR -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing FRP . . . '
 }
 
 process_micloud_xiaomi() {
-	for f in $(cat $TMPDIR/partition.xml | grep "persist" | tr -d ' '); do
-		[ "${f//*persist /}" == "1" ] && {
-			echo "Partition persist sector:   $(grep "persist" "$TMPDIR/partition.xml" | cut -f7)"
-			sleep 1
-			echo $'[ * ]   Backing up persist . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d persist "$backup_persist" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Backing up persist . . . '
-			echo $'[ * ]   Backing up persistbak . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d persistbak "$backup_persistbak" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Backing up persistbak . . . '
-			echo $'[ * ]   Erasing MiCloud . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e persist -memoryname $type $QUIET
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e persistbak -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing MiCloud . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
-	done
+	echo $'[ * ]   Backing up persist . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d persist "$backup_persist" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Backing up persist . . . '
+	echo $'[ * ]   Backing up persistbak . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d persistbak "$backup_persistbak" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Backing up persistbak . . . '
+	echo $'[ * ]   Erasing MiCloud . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e persist -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e persistbak -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing MiCloud . . . '
 }
 
 process_efs() {
-	for f in $(cat $TMPDIR/partition.xml | grep "fsg" | tr -d ' '); do
-		[ "${f//*fsg /}" == "1" ] && {
-			echo "Partition EFS sector:   $(grep "fsg" "$TMPDIR/partition.xml" | cut -f7)"
-			sleep 1
-			echo $'[ * ]   Backing up EFS IMEI . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d fsg "$backup_efs_fsg" -memoryname $type $QUIET
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d modemst1 "$backup_efs_modemst1" -memoryname $type $QUIET
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -d modemst2 "$backup_efs_modemst2" -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Backing up EFS IMEI . . . '
-			echo $'[ * ]   Erasing EFS IMEI . . . \r'
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e fsg -memoryname $type $QUIET
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e modemst1 -memoryname $type $QUIET
-			eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -e modemst2 -memoryname $type $QUIET
-			echo $'[ \e[1;32mOK\e[0m ]  Erasing EFS IMEI . . . '
-		} || {
-			echo $'\e[1;31mERROR\e[0m:  '$type' damaged.'
-			pause; exit 1
-		}
-	done
+	echo $'[ * ]   Backing up EFS IMEI . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d fsg "$backup_efs_fsg" -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d modemst1 "$backup_efs_modemst1" -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -d modemst2 "$backup_efs_modemst2" -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Backing up EFS IMEI . . . '
+	echo $'[ * ]   Erasing EFS IMEI . . . \r'
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e fsg -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e modemst1 -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -e modemst2 -memoryname $type $QUIET
+	echo $'[ \e[1;32mOK\e[0m ]  Erasing EFS IMEI . . . '
+}
+
+process_bootloader() {
+	if [ $RUN_BL -eq 1 ]; then
+		echo $'[ * ]   $DO_METHOD bootloader . . . \r'
+		eval fastboot oem $do_method_fastboot $QUIET
+		echo $'[ \e[1;32mOK\e[0m ]  $DO_METHOD bootloader . . . '
+		break
+	else
+		cp "$TMPDIR/${SHORT_BRAND}-${METHOD}-patch.xml" "$TMPDIR/patch_mod.xml"
+		for sector in $(grep "SECTOR_SIZE_IN_BYTES" "$TMPDIR/partition.xml" | \
+			sed -E "s/.*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*/\1/" | tail -n 1); do
+			for (( i=1; i <= 7; i++ )); do skip="${skip}.*[a-z]=\""; done
+			sed -iE "s/(SECTOR_SIZE_IN_BYTES=\").*?(\"${skip}.*)/\1${sector}\2/" "$TMPDIR/patch_mod.xml"
+			unset skip
+		done
+
+		for sector in $(grep "devinfo" "$TMPDIR/partition.xml" | cut -f7 -d" "); do
+			for (( i=1; i <= 2; i++ )); do skip="${skip}.*[a-z]=\""; done
+			sed -iE "s/(start_sector=\").*?(\"${skip}.*)/\1${sector}\2/" "$TMPDIR/patch_mod.xml"
+			unset skip
+		done
+
+		echo $'[ * ]   Backing up devinfo . . . \r'
+		eval "$downloadbinary" -p $COMPORT -f "$firehose" -d devinfo "$backup_devinfo" -memoryname $type $QUIET
+		echo $'[ \e[1;32mOK\e[0m ]  Backing up devinfo . . . '
+		echo $'[ * ]   $DO_METHOD bootloader . . . \r'
+		eval "$downloadbinary" -p $COMPORT -f "$firehose" -x "$TMPDIR/patch_mod.xml" -memoryname $type $QUIET
+		echo $'[ \e[1;32mOK\e[0m ]  $DO_METHOD bootloader . . . '
+	fi
 }
 
 reboot_device() {
 	echo $'[ * ]   Rebooting device . . . \r'
-	eval "$downloadbinary" -p ttyUSB0 -f "$firehose" -x "$TMPDIR/boot.xml" -memoryname $type $QUIET
+	eval "$downloadbinary" -p $COMPORT -f "$firehose" -x "$TMPDIR/boot.xml" -memoryname $type $QUIET
 	echo $'[ \e[1;32mOK\e[0m ]  Rebooting device . . . '
 	pause
 }
 
 reboot_edl() {
 	echo $'[ * ]   Rebooting device to EDL mode . . . \r'
+	eval fastboot oem edl $QUIET || \
 	eval fastboot reboot-edl $QUIET
 	echo $'[ \e[1;32mOK\e[0m ]  Rebooting device to EDL mode . . . '
 }
@@ -1667,30 +1774,45 @@ show_usage() {
 	printf "%s" "\
 USAGE:  $0 <device> [OPTION]...
 
-    -E, --reboot-edl    reboot device in EDL mode
-    -h, --help          show help usage
-    -M, --method        choose what do you execute
-    -v, --verbose       explain what is being done
-        --version       show script file version and credits
+    -E, --reboot-edl         reboot device in EDL mode
+    -h, --help               show help usage
+    -M, --method=<METHOD>    choose what do you execute
+    -P, --port=<PORT>        set port connection
+    -s, --serial-adb=<sn>    set ADB serial number connection
+    -v, --verbose            explain what is being done
+        --version            show script file version and credits
 
 To see device list, type  $0 --list-available
 "
 }
 
+show_help_method() {
+	printf "%s" "\
+Do erase or reset partition:
+    userdata
+    frp
+    efs
+    misc
+    micloud
+    unlock-bl
+    relock-bl
+"
+}
+
 show_credits() {
 	printf "%s" "\
-Qualcomm Flasher Tool for Linux
+TFF/QC Tools for Linux
 Unlock and flash the Android phone devices.
-Version report:  1.0 revision 1
+Version report:  1.0 revision 2
 
-This script created by Faizal Hamzah [The Firefox Flasher].
+This script developed by Faizal Hamzah [The Firefox Flasher].
 Licensed under the MIT License.
 
 Credits:
-    nijel8            Developer of emmcdl binary
-    bjoerkerler       Qualcomm Firehose Attacker source code
-    Hari Sulteng      Qualcomm GSM Sulteng
-    Hadi Khoirudin    Qualcomm Tools, a simple unlocker
+    nijel8            Developer of emmcdl
+    bkerler           Developer of Qualcomm Firehose Attacker
+    Hari Sulteng      Owner of Qualcomm GSM Sulteng
+    Hadi Khoirudin    Software engineer
 "
 }
 
@@ -1699,94 +1821,95 @@ show_device_list() {
 Devices list available in this tools:
 
 Oppo:
-    a33_cph2137            Oppo A33
-    a53_cph2127            Oppo A53
-    a53s_cph2139           Oppo A53S
-    a73_cph2099            Oppo A73
-    a74_cph2219            Oppo A74
-    a76_cph2375            Oppo A76
-    a95_cph2365            Oppo A95
-    f17_cph2095            Oppo F17
-    f19_cph2219            Oppo F19
-    f21pro_cph2219         Oppo F21 Pro
-    reno4old_cph2113       Oppo Reno4
-    reno4new_cph2113       Oppo Reno4
-    reno4pro_cph2109       Oppo Reno4 Pro
-    reno5_cph2159          Oppo Reno5
-    reno6_cph2235          Oppo Reno6
-    reno7_cph2363          Oppo Reno7
+    oppo_a33_cph2137             Oppo A33
+    oppo_a53_cph2127             Oppo A53
+    oppo_a53s_cph2139            Oppo A53S
+    oppo_a73_cph2099             Oppo A73
+    oppo_a74_cph2219             Oppo A74
+    oppo_a76_cph2375             Oppo A76
+    oppo_a95_cph2365             Oppo A95
+    oppo_f17_cph2095             Oppo F17
+    oppo_f19_cph2219             Oppo F19
+    oppo_f21pro_cph2219          Oppo F21 Pro
+    oppo_reno4_oldsec_cph2113    Oppo Reno4
+    oppo_reno4_newsec_cph2113    Oppo Reno4
+    oppo_reno4pro_cph2109        Oppo Reno4 Pro
+    oppo_reno5_cph2159           Oppo Reno5
+    oppo_reno6_cph2235           Oppo Reno6
+    oppo_reno7_cph2363           Oppo Reno7
 
 Realme:
-    realme6pro_rmx2061     Realme 6 Pro
-    realme7i_rmx2103       Realme 7i
-    realme7pro_rmx2170     Realme 7 Pro
-    realme8pro_rmx3091     Realme 8 Pro
-    realme9_rmx3521        Realme 9
-    realmec15_rmx2195      Realme C15
-    realmec17_rmx2101      Realme C17
+    realme6pro_rmx2061           Realme 6 Pro
+    realme7i_rmx2103             Realme 7i
+    realme7pro_rmx2170           Realme 7 Pro
+    realme8pro_rmx3091           Realme 8 Pro
+    realme9_rmx3521              Realme 9
+    realmec15_rmx2195            Realme C15
+    realmec17_rmx2101            Realme C17
 
 Vivo:
-    vivo_iq00              Vivo IQ00 UI
-    vivo_y20_oldsec        Vivo Y20
-    vivo_y20_newsec        Vivo Y20
-    vivo_y50t              Vivo Y50T
-    vivo_y53               Vivo Y53
-    vivo_y55               Vivo Y55/L
-    vivo_y65               Vivo Y65
-    vivo_y71               Vivo Y71
-    vivo_y91               Vivo Y91/i
-    vivo_y93               Vivo Y93
-    vivo_y95               Vivo Y95
-    vivo_v9                Vivo V9
-    vivo_v9yth             Vivo V9 Youth
-    vivo_v11pro            Vivo V11 Pro
-    vivo_v20_newsec        Vivo V20
-    vivo_v21e              Vivo V21E
+    vivo_iq00                    Vivo IQ00 UI
+    vivo_y20_oldsec              Vivo Y20
+    vivo_y20_newsec              Vivo Y20
+    vivo_y50t                    Vivo Y50T
+    vivo_y53                     Vivo Y53
+    vivo_y55                     Vivo Y55/L
+    vivo_y65                     Vivo Y65
+    vivo_y71                     Vivo Y71
+    vivo_y91                     Vivo Y91/i
+    vivo_y93                     Vivo Y93
+    vivo_y95                     Vivo Y95
+    vivo_v9                      Vivo V9
+    vivo_v9yth                   Vivo V9 Youth
+    vivo_v11pro                  Vivo V11 Pro
+    vivo_v20_newsec              Vivo V20
+    vivo_v21e                    Vivo V21E
 
 Xiaomi / Poco:
-    mi8ee_ursa             Xiaomi Mi 8 EE
-    mi8se_sirius           Xiaomi Mi 8 SE
-    mi8ud_equuleus         Xiaomi Mi 8 UD
-    mi9t_raphael           Xiaomi Mi 9T
-    mi10lite_toco          Xiaomi Mi 10 Lite
-    mi11tpro_vili          Xiaomi 11T Pro
-    mia2_jasmine           Xiaomi Mi A2
-    mia2lite_daisy         Xiaomi Mi A2 Lite
-    mimax2_chiron          Xiaomi Mi Max 2
-    mimax3_nitrogen        Xiaomi Mi Max 3
-    mimix_lithium          Xiaomi Mi Mix
-    mimix2s_polaris        Xiaomi Mi Mix 2s
-    mimix3_perseus         Xiaomi Mi Mix 3
-    minote2_scorpio        Xiaomi Mi Note 2
-    minote3_jason          Xiaomi Mi Note 3
-    mipad4_clover          Xiaomi Mi Pad 4
-    pocof1_beryllium       Xiaomi Pocophone F1
-    pocom2pro_gramin       Xiaomi Pocophone M2 Pro
-    pocom3_citrus          Xiaomi Pocophone M3
-    redmi5a_riva           Xiaomi Redmi 5A
-    redmi6pro_sakura       Xiaomi Redmi 6 Pro
-    redmi7_onclite         Xiaomi Redmi 7
-    redmi9t_lime           Xiaomi Redmi 9T
-    redmik20pro_raphael    Xiaomi Redmi K20 Pro
-    note5_whyred           Xiaomi Redmi Note 5
-    note5pro_whyred        Xiaomi Redmi Note 5 Pro
-    note5a_ugglite         Xiaomi Redmi Note 5a
-    note6pro_tulip         Xiaomi Redmi Note 6 Pro
-    note8_ginkgo           Xiaomi Redmi Note 8
-    note9s_curtana         Xiaomi Redmi Note 9S
-    note9pro_joyeuse       Xiaomi Redmi Note 9 Pro
+    mi8ee_ursa                   Xiaomi Mi 8 EE
+    mi8se_sirius                 Xiaomi Mi 8 SE
+    mi8ud_equuleus               Xiaomi Mi 8 UD
+    mi9t_raphael                 Xiaomi Mi 9T
+    mi10lite_toco                Xiaomi Mi 10 Lite
+    mi11tpro_vili                Xiaomi 11T Pro
+    mia2_jasmine                 Xiaomi Mi A2
+    mia2lite_daisy               Xiaomi Mi A2 Lite
+    mimax2_chiron                Xiaomi Mi Max 2
+    mimax3_nitrogen              Xiaomi Mi Max 3
+    mimix_lithium                Xiaomi Mi Mix
+    mimix2s_polaris              Xiaomi Mi Mix 2s
+    mimix3_perseus               Xiaomi Mi Mix 3
+    minote2_scorpio              Xiaomi Mi Note 2
+    minote3_jason                Xiaomi Mi Note 3
+    mipad4_clover                Xiaomi Mi Pad 4
+    pocof1_beryllium             Xiaomi Pocophone F1
+    pocom2pro_gramin             Xiaomi Pocophone M2 Pro
+    pocom3_citrus                Xiaomi Pocophone M3
+    redmi5a_riva                 Xiaomi Redmi 5A
+    redmi6pro_sakura             Xiaomi Redmi 6 Pro
+    redmi7_onclite               Xiaomi Redmi 7
+    redmi9t_lime                 Xiaomi Redmi 9T
+    redmik20pro_raphael          Xiaomi Redmi K20 Pro
+    note5_whyred                 Xiaomi Redmi Note 5
+    note5pro_whyred              Xiaomi Redmi Note 5 Pro
+    note5a_ugglite               Xiaomi Redmi Note 5a
+    note6pro_tulip               Xiaomi Redmi Note 6 Pro
+    note7_lavender               Xiaomi Redmi Note 7
+    note8_ginkgo                 Xiaomi Redmi Note 8
+    note9s_curtana               Xiaomi Redmi Note 9S
+    note9pro_joyeuse             Xiaomi Redmi Note 9 Pro
 
 Samsung:
-    sm_a015f               Samsung Galaxy A01
-    sm_a025f               Samsung Galaxy A02s
-    sm_a115a               Samsung Galaxy A11
-    sm_a115f               Samsung Galaxy A11
-    sm_a115u               Samsung Galaxy A11
-    sm_a705f               Samsung Galaxy A70
-    sm_j415f               Samsung Galaxy J4 Plus
-    sm_j610f               Samsung Galaxy J6 Plus
-    sm_m025f               Samsung Galaxy M02s
-    sm_m115f               Samsung Galaxy M11
+    sm_a015f                     Samsung Galaxy A01
+    sm_a025f                     Samsung Galaxy A02s
+    sm_a115a                     Samsung Galaxy A11
+    sm_a115f                     Samsung Galaxy A11
+    sm_a115u                     Samsung Galaxy A11
+    sm_a705f                     Samsung Galaxy A70
+    sm_j415f                     Samsung Galaxy J4 Plus
+    sm_j610f                     Samsung Galaxy J6 Plus
+    sm_m025f                     Samsung Galaxy M02s
+    sm_m115f                     Samsung Galaxy M11
 "
 }
 
@@ -1794,135 +1917,136 @@ Samsung:
 # ###################################### DEVICE LIST SET VARIABLE #########################################
 # #########################################################################################################
 
-for i in $(printf "%s" "$ARGS" | sed "s/=/ /g"); do
+[[ "$ARGS" = *"--method="* ]] && METHOD_LONG=1
+for i in $(printf "%s\n" "$ARGS" | sed "s/=/ /g"); do
 # ########################################## START OPPO ###################################################
 
 case $i in
-	"a33_cph2137" )
+	"oppo_a33_cph2137" )
 	  NAME="Oppo A33 (CPH-2137)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a33_cph2137"
+	  DEVICE="oppo_a33_cph2137"
 	  firehosefile="prog_firehose_ddr_Oppo_A33_A53_A53s.elf"
 	  type="emmc"
 	  ;;
-	"a53_cph2127" )
+	"oppo_a53_cph2127" )
 	  NAME="Oppo A53 (CPH-2127)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a53_cph2127"
+	  DEVICE="oppo_a53_cph2127"
 	  firehosefile="prog_firehose_ddr_Oppo_A33_A53_A53s.elf"
 	  type="ufs"
 	  ;;
-	"a53s_cph2139" )
+	"oppo_a53s_cph2139" )
 	  NAME="Oppo A53s (CPH-2139)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a53s_cph2139"
+	  DEVICE="oppo_a53s_cph2139"
 	  firehosefile="prog_firehose_ddr_Oppo_A33_A53_A53s.elf"
 	  type="emmc"
 	  ;;
-	"a73_cph2099" )
+	"oppo_a73_cph2099" )
 	  NAME="Oppo A73 (CPH-2099)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a73_cph2099"
+	  DEVICE="oppo_a73_cph2099"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"a74_cph2219" )
+	"oppo_a74_cph2219" )
 	  NAME="Oppo A74 (CPH-2219)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a74_cph2219"
+	  DEVICE="oppo_a74_cph2219"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"a76_cph2375" )
+	"oppo_a76_cph2375" )
 	  NAME="Oppo A76 (CPH-2375)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a76_cph2375"
+	  DEVICE="oppo_a76_cph2375"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"a95_cph2365" )
+	"oppo_a95_cph2365" )
 	  NAME="Oppo A95 (CPH-2365)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="a95_cph2365"
+	  DEVICE="oppo_a95_cph2365"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"f17_cph2095" )
+	"oppo_f17_cph2095" )
 	  NAME="Oppo F17 (CPH-2095)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="f17_cph2095"
+	  DEVICE="oppo_f17_cph2095"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"f19_cph2219" )
+	"oppo_f19_cph2219" )
 	  NAME="Oppo F19 (CPH-2219)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="f19_cph2219"
+	  DEVICE="oppo_f19_cph2219"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"f21pro_cph2219" )
+	"oppo_f21pro_cph2219" )
 	  NAME="Oppo F21 Pro (CPH-2219)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="f21pro_cph2219"
+	  DEVICE="oppo_f21pro_cph2219"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
-	"reno4old_cph2113" )
-	  NAME="Oppo Reno4 (CPH-2113)"
+	"oppo_reno4_oldsec_cph2113" )
+	  NAME="Oppo Reno4 [Old security] (CPH-2113)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno4_cph2113"
+	  DEVICE="oppo_reno4_cph2113"
 	  firehosefile="prog_firehose_ddr_OppoReno4OldSec2019.mbn"
 	  type="ufs"
 	  ;;
-	"reno4new_cph2113" )
-	  NAME="Oppo Reno4 (CPH-2113)"
+	"oppo_reno4_newsec_cph2113" )
+	  NAME="Oppo Reno4 [New security] (CPH-2113)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno4_cph2113"
+	  DEVICE="oppo_reno4_cph2113"
 	  firehosefile="prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf"
 	  type="ufs"
 	  ;;
-	"reno4pro_cph2109" )
+	"oppo_reno4pro_cph2109" )
 	  NAME="Oppo Reno4 Pro (CPH-2109)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno4pro_cph2109"
+	  DEVICE="oppo_reno4pro_cph2109"
 	  firehosefile="prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf"
 	  type="ufs"
 	  ;;
-	"reno5_cph2159" )
+	"oppo_reno5_cph2159" )
 	  NAME="Oppo Reno5 (CPH-2159)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno5_cph2159"
+	  DEVICE="oppo_reno5_cph2159"
 	  firehosefile="prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf"
 	  type="ufs"
 	  ;;
-	"reno6_cph2235" )
+	"oppo_reno6_cph2235" )
 	  NAME="Oppo Reno6 (CPH-2235)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno6_cph2235"
+	  DEVICE="oppo_reno6_cph2235"
 	  firehosefile="prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf"
 	  type="ufs"
 	  ;;
-	"reno7_cph2363" )
+	"oppo_reno7_cph2363" )
 	  NAME="Oppo Reno7 (CPH-2363)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="oppo"
-	  DEVICE="reno7_cph2363"
+	  DEVICE="oppo_reno7_cph2363"
 	  firehosefile="prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf"
 	  type="ufs"
 	  ;;
@@ -1936,7 +2060,7 @@ case $i in
 	  NAME="Realme 6 Pro (RMX-2061)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="6pro_rmx2061"
+	  DEVICE="realme6pro_rmx2061"
 	  firehosefile="prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf"
 	  type="ufs"
 	  ;;
@@ -1944,7 +2068,7 @@ case $i in
 	  NAME="Realme 7i (RMX-2103)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="7i_rmx2103"
+	  DEVICE="realme7i_rmx2103"
 	  firehosefile="prog_firehose_ddr_Realme7iRMX2103_Realme9RMX3521.elf"
 	  type="ufs"
 	  ;;
@@ -1952,7 +2076,7 @@ case $i in
 	  NAME="Realme 7 Pro (RMX-2170)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="7pro_rmx2170"
+	  DEVICE="realme7pro_rmx2170"
 	  firehosefile="prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf"
 	  type="ufs"
 	  ;;
@@ -1960,7 +2084,7 @@ case $i in
 	  NAME="Realme 8 Pro (RMX-3091)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="8pro_rmx3091"
+	  DEVICE="realme8pro_rmx3091"
 	  firehosefile="prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf"
 	  type="ufs"
 	  ;;
@@ -1968,7 +2092,7 @@ case $i in
 	  NAME="Realme 9 (RMX-3521)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="9_rmx3521"
+	  DEVICE="realme9_rmx3521"
 	  firehosefile="prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf"
 	  type="ufs"
 	  ;;
@@ -1976,7 +2100,7 @@ case $i in
 	  NAME="Realme C15 (RMX-2195)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="c15_rmx2195"
+	  DEVICE="realmec15_rmx2195"
 	  firehosefile="prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf"
 	  type="emmc"
 	  ;;
@@ -1984,7 +2108,7 @@ case $i in
 	  NAME="Realme C17 (RMX-2101)"
 	  BRAND="Oppo/Realme"
 	  SHORT_BRAND="realme"
-	  DEVICE="c17_rmx2101"
+	  DEVICE="realmec17_rmx2101"
 	  firehosefile="prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf"
 	  type="ufs"
 	  ;;
@@ -1998,23 +2122,23 @@ case $i in
 	  NAME="Vivo IQ00 UI"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="iq00"
+	  DEVICE="vivo_iq00"
 	  firehosefile="prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf"
 	  type="ufs"
 	  ;;
 	"vivo_y20_oldsec" )
-	  NAME="Vivo Y20"
+	  NAME="Vivo Y20 [Old security]"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y20"
+	  DEVICE="vivo_y20"
 	  firehosefile="prog_firehose_ddr_vivo_Y20_Y20i_Y20s.elf"
 	  type="emmc"
 	  ;;
 	"vivo_y20_newsec" )
-	  NAME="Vivo Y20"
+	  NAME="Vivo Y20 [New security]"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y20"
+	  DEVICE="vivo_y20"
 	  firehosefile="prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf"
 	  type="emmc"
 	  ;;
@@ -2022,7 +2146,7 @@ case $i in
 	  NAME="Vivo Y50T"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y50t"
+	  DEVICE="vivo_y50t"
 	  firehosefile="prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf"
 	  type="ufs"
 	  ;;
@@ -2030,7 +2154,7 @@ case $i in
 	  NAME="Vivo Y53"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y53"
+	  DEVICE="vivo_y53"
 	  firehosefile="prog_firehose_8917_ddr_vivo_y53_y53l.mbn"
 	  type="emmc"
 	  ;;
@@ -2038,7 +2162,7 @@ case $i in
 	  NAME="Vivo Y55/L"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y55"
+	  DEVICE="vivo_y55"
 	  firehosefile="prog_emmc_firehose_8937_y91_y93_y95_v11.mbn"
 	  type="emmc"
 	  ;;
@@ -2046,7 +2170,7 @@ case $i in
 	  NAME="Vivo Y65"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y65"
+	  DEVICE="vivo_y65"
 	  firehosefile="prog_firehose_8917_ddr_vivo_y65.mbn"
 	  type="emmc"
 	  ;;
@@ -2054,7 +2178,7 @@ case $i in
 	  NAME="Vivo Y71"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y71"
+	  DEVICE="vivo_y71"
 	  firehosefile="prog_firehose_8917_ddr_vivo_y71.mbn"
 	  type="emmc"
 	  ;;
@@ -2062,7 +2186,7 @@ case $i in
 	  NAME="Vivo Y91/i"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y91"
+	  DEVICE="vivo_y91"
 	  firehosefile="prog_emmc_firehose_8937_y91_y93_y95_v11.mbn"
 	  type="emmc"
 	  ;;
@@ -2070,7 +2194,7 @@ case $i in
 	  NAME="Vivo Y93"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y93"
+	  DEVICE="vivo_y93"
 	  firehosefile="prog_emmc_firehose_8937_y91_y93_y95_v11.mbn"
 	  type="emmc"
 	  ;;
@@ -2078,7 +2202,7 @@ case $i in
 	  NAME="Vivo Y95"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="y95"
+	  DEVICE="vivo_y95"
 	  firehosefile="prog_emmc_firehose_8937_y91_y93_y95_v11.mbn"
 	  type="emmc"
 	  ;;
@@ -2086,7 +2210,7 @@ case $i in
 	  NAME="Vivo V9"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="v9"
+	  DEVICE="vivo_v9"
 	  firehosefile="prog_emmc_firehose_8953_ddr_vivo_v9.mbn"
 	  type="emmc"
 	  ;;
@@ -2094,7 +2218,7 @@ case $i in
 	  NAME="Vivo V9 Youth"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="v9yth"
+	  DEVICE="vivo_v9yth"
 	  firehosefile="prog_emmc_firehose_8953_ddr_vivo_v9_youth.mbn"
 	  type="emmc"
 	  ;;
@@ -2102,15 +2226,15 @@ case $i in
 	  NAME="Vivo V11 Pro"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="v11pro"
+	  DEVICE="vivo_v11pro"
 	  firehosefile="prog_emmc_firehose_8937_y91_y93_y95_v11.mbn"
 	  type="emmc"
 	  ;;
 	"vivo_v20_newsec" )
-	  NAME="Vivo V20"
+	  NAME="Vivo V20 [New security]"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="v20"
+	  DEVICE="vivo_v20"
 	  firehosefile="prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf"
 	  type="ufs"
 	  ;;
@@ -2118,7 +2242,7 @@ case $i in
 	  NAME="Vivo V21E"
 	  BRAND="Vivo"
 	  SHORT_BRAND="vivo"
-	  DEVICE="v21e"
+	  DEVICE="vivo_v21e"
 	  firehosefile="prog_firehose_ddr_vivo_V21e.elf"
 	  type="ufs"
 	  ;;
@@ -2352,6 +2476,14 @@ case $i in
 	  firehosefile="prog_emmc_firehose_Sdm660_ddr_xiaomi_note6pro_tulip_s_rb4.elf"
 	  type="emmc"
 	  ;;
+	"note7_lavender" )
+	  NAME="Xiaomi Redmi Note 7 (Lavender)"
+	  BRAND="Xiaomi"
+	  SHORT_BRAND="xiaomi"
+	  DEVICE="lavender"
+	  firehosefile="prog_emmc_firehose_Sdm660_ddr_redminote7_lavender.mbn"
+	  type="emmc"
+	  ;;
 	"note8_ginkgo" )
 	  NAME="Xiaomi Redmi Note 8 (Ginkgo)"
 	  BRAND="Xiaomi"
@@ -2484,6 +2616,12 @@ case $i in
 	  METHOD_FULL="Reboot to EDL mode"
 	  REBOOT_EDL=1
 	  ;;
+	"--port" | "-P" )
+	  port_connect=1
+	  ;;
+	"--serial-adb" | "-s" )
+	  adb_connect=1
+	  ;;
 	"--verbose" | "-v" )
 	  unset QUIET
 	  ;;
@@ -2491,34 +2629,88 @@ case $i in
 	  show_device_list
 	  exit
 	  ;;
-	"--method" | "-M" )
-	  METHOD_ARGS="1"
+	"--method" )
+	  [ -z $METHOD_LONG ] || \
+	  METHOD_ARGS=1
+	  ;;
+	"-M" )
+	  METHOD_LONG=1
+	  METHOD_ARGS=1
 	  ;;
 	"userdata" )
-	  METHOD="userdata"
-	  METHOD_FULL="Erase userdata"
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="userdata"
+		  METHOD_FULL="Erase userdata"
+	  }
 	  ;;
 	"frp" )
-	  METHOD="frp"
-	  METHOD_FULL="Erase FRP"
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="frp"
+		  METHOD_FULL="Erase FRP"
+	  }
 	  ;;
 	"efs" )
-	  METHOD="efs"
-	  METHOD_FULL="Erase EFS IMEI"
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="efs"
+		  METHOD_FULL="Erase EFS IMEI"
+	  }
 	  ;;
 	"misc" )
-	  METHOD="misc"
-	  METHOD_FULL="Safe format data"
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="misc"
+		  METHOD_FULL="Safe format data"
+	  }
 	  ;;
 	"micloud" )
-	  [ "$SHORT_BRAND" != "xiaomi" ] && {
-		  echo "This method only allowed for Xiaomi brands."
-		  exit 1
+	  [ -z $METHOD_ARGS ] || {
+		  [ "$SHORT_BRAND" != "xiaomi" ] && {
+			echo "This method only allowed for Xiaomi brands."
+			exit 1
+		  }
+		  METHOD="micloud"
+		  METHOD_FULL="Erase MiCloud"
 	  }
-	  METHOD="micloud"
-	  METHOD_FULL="Erase MiCloud"
+	  ;;
+	"unlock-bl" )
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="unlock-bl"
+		  DO_METHOD="Unlocking"
+		  do_method_fastboot="unlock"
+		  METHOD_FULL="Unlock bootloader"
+		  RUN_BL=1
+	  }
+	  ;;
+	"relock-bl" )
+	  [ -z $METHOD_ARGS ] || {
+		  METHOD="relock-bl"
+		  DO_METHOD="Locking"
+		  do_method_fastboot="lock"
+		  METHOD_FULL="Lock bootloader"
+		  RUN_BL=1
+	  }
+	  ;;
+	"help" )
+	  [ -z $METHOD_LONG ] || {
+		  show_help_method
+		  exit
+	  }
 	  ;;
 esac
+
+if [ ! -z $port_connect ]; then
+	for (( c=1; c < 100; c++ )); do
+		[ "$i" == "ttyUSB${c}" ] && {
+			COMPORT="ttyUSB${c}"
+			break
+		}
+	done
+fi
+if [ ! -z $adb_connect ]; then
+	for s in $(adb devices | grep "device\>" | cut -f1 -d$'\s'); do [ "$i" == "$s" ] && serial="$s"; done
+	for s in $(adb devices | grep "recovery\>" | cut -f1 -d$'\s'); do [ "$i" == "$s" ] && serial="$s"; done
+	for s in $(adb devices | grep "sideload\>" | cut -f1 -d$'\s'); do [ "$i" == "$s" ] && serial="$s"; done
+	for s in $(fastboot devices | grep "fastboot\>" | cut -f1 -d$'\s'); do [ "$i" == "$s" ] && serial="$s"; done
+fi
 done
 
 if [[ -z "$ARGS" ]]; then
@@ -2527,15 +2719,15 @@ if [[ -z "$ARGS" ]]; then
 			echo "Requirements:  python"
 			exit 1
 		}
-		python -m pip list 2>&1 | grep "PyQt5.\s" >/dev/null || \
-		python -m pip install PyQt5
-		python "$PyQt_script"
+		python -m pip list 2>&1 | grep "PyQt5" >/dev/null || \
+		python -m pip install --quiet --upgrade PyQt5 >/dev/null 2>&1
+		python -u "$PyQt_script"
 		exit
 	} || {
 		echo "This is development release. Coming soon:  GUI window."
 		exit 1
 	}
-elif [ -z "$METHOD_ARGS" ]; then
+elif [[ -z $METHOD_LONG || -z $METHOD_ARGS ]]; then
 	echo "Invalid switch parameter."
 	exit 1
 elif [ -z "$METHOD" ]; then
@@ -2555,10 +2747,12 @@ execution
 
 for r in \
 	$firehosefile boot.xml patch.xml \
+	${SHORT_BRAND}-${METHOD}-patch.xml \
 	patch_mod.xml partition.xml
-do rm "$TMPDIR/$r"
+do
+rm "$TMPDIR/$r"
 done
 
 exit
 
-## end_bash_scrip
+## end_bash_script
