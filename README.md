@@ -3,6 +3,8 @@ Unlock and flash the Android phone device
 
 <img src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/> <img src="assets/resources/images/command_line.png" alt="Command Line mode" width="50%"/>
 
+<noscript><a href="https://liberapay.com/thefirefox12537/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+
 ## How to using this script:
 ```
 $ ./qctools --help
