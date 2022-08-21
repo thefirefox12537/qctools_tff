@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file './qctools_win.ui'
@@ -10,7 +11,7 @@
 #
 #  TFF/QC Tools
 #  Unlock and flash the Android phone device
-#  GUI version report:  1.0 beta (20220819_0840wib)
+#  GUI version report:  1.0 beta (20220820_2120wib)
 #
 #  This script developed by Faizal Hamzah [The Firefox Flasher].
 #  Licensed under the MIT License.
@@ -23,10 +24,13 @@
 #
 
 
+import ctypes
 import os
 import platform
 import re
+import serial
 import shutil
+import ssl
 import subprocess
 import sys
 import threading
@@ -37,18 +41,19 @@ from urllib import request
 from zipfile import ZipFile
 
 # Load requirements modules
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
-from pymodule import serial
-from pymodule.serial.tools import list_ports
+from PyQt5 import QtCore, QtGui, QtWidgets
+from corestff import getdevices, unlock, reboot
+from serial.tools import list_ports
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
+        welcome = f"<span style=\"color:#ffffff;\"><p>TFF/Qualcomm Tools<br/>GUI version report:  1.0 {build_info}<br/><br/>This is beta development<br/></p></span>"
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(icon_file), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        for size in ["_16.png", "_32.png", "_64.png", "_128.png", "_256.png"]:
+            icon.addPixmap(QtGui.QPixmap(icon_file + size), QtGui.QIcon.Selected, QtGui.QIcon.On)
+
         self.resize(1024, 652)
         self.setMinimumSize(QtCore.QSize(1024, 652))
         self.setMaximumSize(QtCore.QSize(1024, 652))
@@ -79,7 +84,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.refresh_port_1.setText("Re&fresh")
         self.refresh_port_1.clicked.connect(self.check_port)
 
-        self.log_process_1 = QtWidgets.QPlainTextEdit(self.UnlockerMenu)
+        self.log_process_1 = QtWidgets.QTextEdit(self.UnlockerMenu)
         self.log_process_1.setStyleSheet('''
         background-color: rgb(66, 66, 66);
         selection-background-color: rgb(28, 113, 216);
@@ -87,6 +92,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ''')
         self.log_process_1.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.log_process_1.setReadOnly(True)
+        self.log_process_1.setHtml(welcome)
 
         self.stop_process_1 = QtWidgets.QPushButton(self.UnlockerMenu)
         self.stop_process_1.setText("Stop")
@@ -693,13 +699,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.adb_radiobutton1 = QtWidgets.QRadioButton(self.scrollAreaWidgetContents_12)
         self.verticalLayout_17.addWidget(self.adb_radiobutton1)
         self.adb_radiobutton1.setText("ADB mode")
-        self.adb_radiobutton1.clicked.connect(self.getAdb_method)
+        self.adb_radiobutton1.clicked.connect(self.getadb_method)
 
         self.adb_radiobutton2 = QtWidgets.QRadioButton(self.scrollAreaWidgetContents_12)
         self.verticalLayout_17.addWidget(self.adb_radiobutton2)
         self.adb_radiobutton2.setText("Fastboot mode")
         self.adb_radiobutton2.setChecked(True)
-        self.adb_radiobutton2.clicked.connect(self.getAdb_method)
+        self.adb_radiobutton2.clicked.connect(self.getadb_method)
 
         spacerItem10 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_17.addItem(spacerItem10)
@@ -774,7 +780,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.verticalLayout_16.addWidget(self.command_uni_radiobutton13)
         self.command_uni_radiobutton13.setObjectName("oppo_demo")
         self.command_uni_radiobutton13.setText("Oppo Demo phone")
-        self.setAdb_method()
+        self.setadb_method()
 
         spacerItem11 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_16.addItem(spacerItem11)
@@ -789,382 +795,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.brand_tab.addTab(self.adb_fastboot_menu, "ADB && Fastboot")
 
         self.tab.addTab(self.UnlockerMenu, "Unlocker")
-
-
-
-        self.DownloaderMenu = QtWidgets.QWidget()
-        self.DownloaderMenu.setObjectName("DownloaderMenu")
-
-        self.port_list_2 = QtWidgets.QComboBox(self.DownloaderMenu)
-
-        self.refresh_port_2 = QtWidgets.QPushButton(self.DownloaderMenu)
-        self.refresh_port_2.setText("Re&fresh")
-        self.refresh_port_2.clicked.connect(self.check_port)
-
-        self.log_process_2 = QtWidgets.QPlainTextEdit(self.DownloaderMenu)
-        self.log_process_2.setStyleSheet('''
-        background-color: rgb(66, 66, 66);
-        selection-background-color: rgb(28, 113, 216);
-        alternate-background-color: rgb(255, 255, 255);
-        ''')
-        self.log_process_2.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.log_process_2.setReadOnly(True)
-
-        self.stop_process_2 = QtWidgets.QPushButton(self.DownloaderMenu)
-        self.stop_process_2.setText("&Stop")
-
-        self.current_2 = QtWidgets.QLabel(self.DownloaderMenu)
-        self.current_2.setText("Current:")
-        self.current_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.progressBar_3 = QtWidgets.QProgressBar(self.DownloaderMenu)
-        self.progressBar_3.setProperty("value", 100)
-
-        self.total_2 = QtWidgets.QLabel(self.DownloaderMenu)
-        self.total_2.setText("Total:")
-        self.total_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.progressBar_4 = QtWidgets.QProgressBar(self.DownloaderMenu)
-        self.progressBar_4.setProperty("value", 100)
-
-
-        self.downloader_tab = QtWidgets.QTabWidget(self.DownloaderMenu)
-
-        self.edl = QtWidgets.QWidget()
-
-        self.edl_partition_list = QtWidgets.QTableWidget(self.edl)
-        self.edl_partition_list.setProperty("showDropIndicator", False)
-        self.edl_partition_list.setDragDropOverwriteMode(False)
-        self.edl_partition_list.setWordWrap(False)
-        self.edl_partition_list.setColumnCount(6)
-        self.edl_partition_list.setRowCount(1)
-
-        checkboxitem_1 = QtWidgets.QTableWidgetItem()
-        checkboxitem_1.setFlags(QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-        checkboxitem_1.setCheckState(QtCore.Qt.Unchecked)
-        self.edl_partition_list.setItem(0, 0, checkboxitem_1)
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(0, item)
-        self.edl_partition_list.setColumnWidth(0, 92)
-        item = self.edl_partition_list.horizontalHeaderItem(0)
-        item.setText("lun")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(1, item)
-        self.edl_partition_list.setColumnWidth(1, 85)
-        item = self.edl_partition_list.horizontalHeaderItem(1)
-        item.setText("blocks")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(2, item)
-        self.edl_partition_list.setColumnWidth(2, 135)
-        item = self.edl_partition_list.horizontalHeaderItem(2)
-        item.setText("partition")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(3, item)
-        self.edl_partition_list.setColumnWidth(3, 90)
-        item = self.edl_partition_list.horizontalHeaderItem(3)
-        item.setText("start sector")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(4, item)
-        self.edl_partition_list.setColumnWidth(4, 100)
-        item = self.edl_partition_list.horizontalHeaderItem(4)
-        item.setText("size")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.edl_partition_list.setHorizontalHeaderItem(5, item)
-        self.edl_partition_list.setColumnWidth(5, 300)
-        item = self.edl_partition_list.horizontalHeaderItem(5)
-        item.setText("filename")
-
-        self.edl_partition_list.horizontalHeader().setSortIndicatorShown(True)
-        self.edl_partition_list.verticalHeader().setVisible(False)
-
-        self.flash_button_1 = QtWidgets.QPushButton(self.edl)
-        self.flash_button_1.setText("&Flash")
-
-        self.read_button_1 = QtWidgets.QPushButton(self.edl)
-        self.read_button_1.setText("&Read")
-
-        self.erase_button_1 = QtWidgets.QPushButton(self.edl)
-        self.erase_button_1.setText("&Erase")
-
-        self.backup_button = QtWidgets.QPushButton(self.edl)
-        self.backup_button.setText("Ba&ckup")
-
-        self.directory_line_1 = QtWidgets.QLineEdit(self.edl)
-
-        self.browse_directory_1 = QtWidgets.QPushButton(self.edl)
-        self.browse_directory_1.setText("Browse")
-        self.browse_directory_1.clicked.connect(self.open_firmware_edl)
-
-        self.directory_label_1 = QtWidgets.QLabel(self.edl)
-        self.directory_label_1.setText("Directory:")
-        self.directory_label_1.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.rawprogram_combobox = QtWidgets.QComboBox(self.edl)
-        self.rawprogram_combobox.setEnabled(False)
-
-        self.patch_combobox = QtWidgets.QComboBox(self.edl)
-        self.patch_combobox.setEnabled(False)
-
-        self.brand_combobox = QtWidgets.QComboBox(self.edl)
-        self.brand_combobox.setEnabled(True)
-        self.brand_combobox.activated.connect(self.update_model_combobox)
-
-        self.model_combobox = QtWidgets.QComboBox(self.edl)
-        self.model_combobox.setEnabled(True)
-
-        self.storage_combobox = QtWidgets.QComboBox(self.edl)
-        self.storage_combobox.setEnabled(False)
-
-        self.rawprogram_label = QtWidgets.QLabel(self.edl)
-        self.rawprogram_label.setEnabled(False)
-        self.rawprogram_label.setText("rawprogram.xml: ")
-        self.rawprogram_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.patch_label = QtWidgets.QLabel(self.edl)
-        self.patch_label.setEnabled(False)
-        self.patch_label.setText("patch.xml: ")
-        self.patch_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.brand_label = QtWidgets.QLabel(self.edl)
-        self.brand_label.setText("Brand: ")
-        self.brand_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.model_label = QtWidgets.QLabel(self.edl)
-        self.model_label.setText("Model: ")
-        self.model_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.storage_label = QtWidgets.QLabel(self.edl)
-        self.storage_label.setEnabled(False)
-        self.storage_label.setText("Storage: ")
-        self.storage_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        for item in self.brand_name_device():
-            self.brand_combobox.addItem(item["brand_name"])
-            self.brand_combobox.setItemText(item["no"], item["brand_description"])
-        for item in [""]:
-            self.model_combobox.addItem(item)
-        for item in [{"no": 0, "storage": "emmc"}, {"no": 1, "storage": "ufs"}]:
-            self.storage_combobox.addItem(item["storage"])
-            self.storage_combobox.setItemText(item["no"], item["storage"])
-
-        self.browse_loaderpath = QtWidgets.QPushButton(self.edl)
-        self.browse_loaderpath.setEnabled(False)
-        self.browse_loaderpath.setText("Browse")
-        self.browse_loaderpath.clicked.connect(self.open_loader)
-
-        self.loaderpath_line = QtWidgets.QLineEdit(self.edl)
-        self.loaderpath_line.setEnabled(False)
-
-        self.loader_checkbox = QtWidgets.QCheckBox(self.edl)
-        self.loader_checkbox.setText("&Loader: ")
-
-        self.reboot_1 = QtWidgets.QCheckBox(self.edl)
-        self.reboot_1.setText("Re&boot device after flash")
-
-        self.select_all_1 = QtWidgets.QCheckBox(self.edl)
-        self.select_all_1.setText("Select &all")
-
-        self.edl_loader_checked()
-        self.loader_checkbox.stateChanged.connect(self.edl_loader_checked)
-
-        self.downloader_tab.addTab(self.edl, "EDL mode")
-
-
-        self.fastboot = QtWidgets.QWidget()
-
-        self.fastboot_partition_list = QtWidgets.QTableWidget(self.fastboot)
-        self.fastboot_partition_list.setProperty("showDropIndicator", False)
-        self.fastboot_partition_list.setDragDropOverwriteMode(False)
-        self.fastboot_partition_list.setWordWrap(False)
-        self.fastboot_partition_list.setColumnCount(3)
-        self.fastboot_partition_list.setRowCount(1)
-
-        checkboxitem_2 = QtWidgets.QTableWidgetItem()
-        checkboxitem_2.setFlags(QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-        checkboxitem_2.setCheckState(QtCore.Qt.Unchecked)
-        self.fastboot_partition_list.setItem(0, 0, checkboxitem_2)
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.fastboot_partition_list.setHorizontalHeaderItem(0, item)
-        self.fastboot_partition_list.setColumnWidth(0, 167)
-        item = self.fastboot_partition_list.horizontalHeaderItem(0)
-        item.setText("partition")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.fastboot_partition_list.setHorizontalHeaderItem(1, item)
-        self.fastboot_partition_list.setColumnWidth(1, 100)
-        item = self.fastboot_partition_list.horizontalHeaderItem(1)
-        item.setText("size")
-
-        item = QtWidgets.QTableWidgetItem()
-        item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignVCenter)
-        self.fastboot_partition_list.setHorizontalHeaderItem(2, item)
-        self.fastboot_partition_list.setColumnWidth(2, 300)
-        item = self.fastboot_partition_list.horizontalHeaderItem(2)
-        item.setText("filename")
-
-        self.fastboot_partition_list.horizontalHeader().setSortIndicatorShown(True)
-        self.fastboot_partition_list.verticalHeader().setVisible(False)
-
-        self.erase_button_2 = QtWidgets.QPushButton(self.fastboot)
-        self.erase_button_2.setText("&Erase")
-
-        self.flash_button_2 = QtWidgets.QPushButton(self.fastboot)
-        self.flash_button_2.setText("&Flash")
-
-        self.manual_flash_button = QtWidgets.QPushButton(self.fastboot)
-        self.manual_flash_button.setText("&Manual")
-        self.manual_flash_button.clicked.connect(self.openManual)
-
-        self.directory_line_2 = QtWidgets.QLineEdit(self.fastboot)
-
-        self.directory_label_2 = QtWidgets.QLabel(self.fastboot)
-        self.directory_label_2.setText("Directory:")
-        self.directory_label_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.browse_directory_2 = QtWidgets.QPushButton(self.fastboot)
-        self.browse_directory_2.setText("Browse")
-        self.browse_directory_2.clicked.connect(self.open_firmware_fastboot)
-
-        self.reboot_2 = QtWidgets.QCheckBox(self.fastboot)
-        self.reboot_2.setText("Re&boot device after flash")
-
-        self.select_all_2 = QtWidgets.QCheckBox(self.fastboot)
-        self.select_all_2.setText("Select &all")
-
-        self.script_combobox = QtWidgets.QComboBox(self.fastboot)
-        self.script_combobox.setEnabled(False)
-
-        self.script_label = QtWidgets.QLabel(self.fastboot)
-        self.script_label.setText("Script: ")
-        self.script_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-
-        self.downloader_tab.addTab(self.fastboot, "Fastboot mode")
-
-        self.tab.addTab(self.DownloaderMenu, "Downloader")
-
-
-
-        self.TestpointMenu = QtWidgets.QWidget()
-
-        self.frame_2 = QtWidgets.QFrame(self.TestpointMenu)
-        self.frame_2.setStyleSheet("background-color: rgb(66, 66, 66);")
-        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.gridLayout_6 = QtWidgets.QGridLayout(self.frame_2)
-        self.scrollArea_18 = QtWidgets.QScrollArea(self.frame_2)
-        self.scrollArea_18.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_20 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_20.setGeometry(QtCore.QRect(0, 0, 644, 535))
-        self.scrollArea_18.setWidget(self.scrollAreaWidgetContents_20)
-        self.gridLayout_6.addWidget(self.scrollArea_18, 0, 0, 1, 1)
-
-        self.brand_testpoint_tab = QtWidgets.QTabWidget(self.TestpointMenu)
-
-        self.oppo_testpoint_tab = QtWidgets.QWidget()
-        self.gridLayout = QtWidgets.QGridLayout(self.oppo_testpoint_tab)
-        self.scrollArea_13 = QtWidgets.QScrollArea(self.oppo_testpoint_tab)
-        self.scrollArea_13.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_13 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_13.setGeometry(QtCore.QRect(0, 0, 290, 515))
-        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_13)
-        self.pushButton_2 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_13)
-        self.pushButton_2.setText("PushButton")
-        self.verticalLayout_7.addWidget(self.pushButton_2)
-        spacerItem12 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_7.addItem(spacerItem12)
-        self.scrollArea_13.setWidget(self.scrollAreaWidgetContents_13)
-        self.gridLayout.addWidget(self.scrollArea_13, 0, 0, 1, 1)
-        self.brand_testpoint_tab.addTab(self.oppo_testpoint_tab, "Oppo")
-
-        self.realme_testpoint_tab = QtWidgets.QWidget()
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.realme_testpoint_tab)
-        self.scrollArea_14 = QtWidgets.QScrollArea(self.realme_testpoint_tab)
-        self.scrollArea_14.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_15 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_15.setGeometry(QtCore.QRect(0, 0, 285, 515))
-        self.verticalLayout_18 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_15)
-        self.pushButton_8 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_15)
-        self.pushButton_8.setText("PushButton")
-        self.verticalLayout_18.addWidget(self.pushButton_8)
-        spacerItem13 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_18.addItem(spacerItem13)
-        self.scrollArea_14.setWidget(self.scrollAreaWidgetContents_15)
-        self.gridLayout_2.addWidget(self.scrollArea_14, 0, 0, 1, 1)
-        self.brand_testpoint_tab.addTab(self.realme_testpoint_tab, "Realme")
-
-        self.vivo_testpoint_tab = QtWidgets.QWidget()
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.vivo_testpoint_tab)
-        self.scrollArea_15 = QtWidgets.QScrollArea(self.vivo_testpoint_tab)
-        self.scrollArea_15.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_16 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_16.setGeometry(QtCore.QRect(0, 0, 98, 47))
-        self.verticalLayout_19 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_16)
-        self.pushButton_9 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_16)
-        self.pushButton_9.setText("PushButton")
-        self.verticalLayout_19.addWidget(self.pushButton_9)
-        spacerItem14 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_19.addItem(spacerItem14)
-        self.scrollArea_15.setWidget(self.scrollAreaWidgetContents_16)
-        self.gridLayout_3.addWidget(self.scrollArea_15, 0, 0, 1, 1)
-        self.brand_testpoint_tab.addTab(self.vivo_testpoint_tab, "Vivo")
-
-        self.xiaomi_testpoint_tab = QtWidgets.QWidget()
-        self.gridLayout_4 = QtWidgets.QGridLayout(self.xiaomi_testpoint_tab)
-        self.scrollArea_16 = QtWidgets.QScrollArea(self.xiaomi_testpoint_tab)
-        self.scrollArea_16.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_17 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_17.setGeometry(QtCore.QRect(0, 0, 98, 47))
-        self.verticalLayout_20 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_17)
-        self.pushButton_10 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_17)
-        self.pushButton_10.setText("PushButton")
-        self.verticalLayout_20.addWidget(self.pushButton_10)
-        spacerItem15 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_20.addItem(spacerItem15)
-        self.scrollArea_16.setWidget(self.scrollAreaWidgetContents_17)
-        self.gridLayout_4.addWidget(self.scrollArea_16, 0, 0, 1, 1)
-        self.brand_testpoint_tab.addTab(self.xiaomi_testpoint_tab, "Xiaomi / Poco")
-
-        self.samsung_testpoint_tab = QtWidgets.QWidget()
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.samsung_testpoint_tab)
-        self.scrollArea_17 = QtWidgets.QScrollArea(self.samsung_testpoint_tab)
-        self.scrollArea_17.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_18 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_18.setGeometry(QtCore.QRect(0, 0, 98, 47))
-        self.verticalLayout_21 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_18)
-        self.pushButton_11 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_18)
-        self.pushButton_11.setText("PushButton")
-        self.verticalLayout_21.addWidget(self.pushButton_11)
-        spacerItem16 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_21.addItem(spacerItem16)
-        self.scrollArea_17.setWidget(self.scrollAreaWidgetContents_18)
-        self.gridLayout_5.addWidget(self.scrollArea_17, 0, 0, 1, 1)
-        self.brand_testpoint_tab.addTab(self.samsung_testpoint_tab, "Samsung")
-
-        self.tab.addTab(self.TestpointMenu, "Testpoint")
-
-
-
-        self.ManualGuideMenu = QtWidgets.QWidget()
-        self.frame_3 = QtWidgets.QFrame(self.ManualGuideMenu)
-        self.frame_3.setStyleSheet("background-color: rgb(66, 66, 66);")
-        self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.tab.addTab(self.ManualGuideMenu, "Manual guide")
 
 
         self.setCentralWidget(self.centralwidget)
@@ -1249,55 +879,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.total_1.setGeometry(QtCore.QRect(595, 541, 41, 20))
             self.progressBar_2.setGeometry(QtCore.QRect(644, 540, 281, 23))
             self.brand_tab.setGeometry(QtCore.QRect(7, 7, 571, 561))
-
-            self.port_list_2.setGeometry(QtCore.QRect(588, 7, 321, 22))
-            self.refresh_port_2.setGeometry(QtCore.QRect(916, 7, 81, 22))
-            self.log_process_2.setGeometry(QtCore.QRect(587, 40, 411, 451))
-            self.stop_process_2.setGeometry(QtCore.QRect(930, 511, 61, 51))
-            self.current_2.setGeometry(QtCore.QRect(595, 510, 41, 20))
-            self.progressBar_3.setGeometry(QtCore.QRect(644, 540, 281, 23))
-            self.total_2.setGeometry(QtCore.QRect(595, 541, 41, 20))
-            self.progressBar_4.setGeometry(QtCore.QRect(644, 509, 281, 23))
-            self.downloader_tab.setGeometry(QtCore.QRect(7, 7, 571, 561))
-            self.edl_partition_list.setGeometry(QtCore.QRect(7, 40, 551, 301))
-            self.flash_button_1.setGeometry(QtCore.QRect(10, 410, 91, 24))
-            self.read_button_1.setGeometry(QtCore.QRect(10, 380, 91, 24))
-            self.erase_button_1.setGeometry(QtCore.QRect(106, 380, 91, 24))
-            self.backup_button.setGeometry(QtCore.QRect(106, 410, 91, 24))
-            self.directory_line_1.setGeometry(QtCore.QRect(76, 11, 391, 22))
-            self.browse_directory_1.setGeometry(QtCore.QRect(475, 11, 81, 22))
-            self.directory_label_1.setGeometry(QtCore.QRect(10, 11, 51, 22))
-            self.rawprogram_combobox.setGeometry(QtCore.QRect(423, 380, 131, 22))
-            self.patch_combobox.setGeometry(QtCore.QRect(423, 410, 131, 22))
-            self.brand_combobox.setGeometry(QtCore.QRect(423, 440, 131, 22))
-            self.model_combobox.setGeometry(QtCore.QRect(423, 470, 131, 22))
-            self.storage_combobox.setGeometry(QtCore.QRect(423, 500, 131, 22))
-            self.rawprogram_label.setGeometry(QtCore.QRect(328, 380, 91, 22))
-            self.patch_label.setGeometry(QtCore.QRect(348, 410, 71, 22))
-            self.brand_label.setGeometry(QtCore.QRect(348, 440, 71, 22))
-            self.model_label.setGeometry(QtCore.QRect(348, 470, 71, 22))
-            self.storage_label.setGeometry(QtCore.QRect(348, 500, 71, 22))
-            self.browse_loaderpath.setGeometry(QtCore.QRect(252, 499, 75, 22))
-            self.loaderpath_line.setGeometry(QtCore.QRect(75, 500, 171, 22))
-            self.loader_checkbox.setGeometry(QtCore.QRect(14, 500, 61, 22))
-            self.select_all_1.setGeometry(QtCore.QRect(14, 350, 92, 17))
-            self.reboot_1.setGeometry(QtCore.QRect(110, 350, 445, 17))
-            self.fastboot_partition_list.setGeometry(QtCore.QRect(7, 40, 551,  391))
-            self.erase_button_2.setGeometry(QtCore.QRect(106, 471, 91, 24))
-            self.flash_button_2.setGeometry(QtCore.QRect(10, 501, 91, 24))
-            self.manual_flash_button.setGeometry(QtCore.QRect(10, 471, 91, 24))
-            self.directory_line_2.setGeometry(QtCore.QRect(76, 11, 391, 22))
-            self.directory_label_2.setGeometry(QtCore.QRect(10, 11, 51, 22))
-            self.browse_directory_2.setGeometry(QtCore.QRect(475, 11, 81, 22))
-            self.select_all_2.setGeometry(QtCore.QRect(14, 440, 92, 17))
-            self.reboot_2.setGeometry(QtCore.QRect(110, 440, 445, 17))
-            self.script_combobox.setGeometry(QtCore.QRect(401, 471, 151, 22))
-            self.script_label.setGeometry(QtCore.QRect(348, 471, 47, 22))
-
-            self.frame_2.setGeometry(QtCore.QRect(332, 9, 666, 557))
-            self.brand_testpoint_tab.setGeometry(QtCore.QRect(7, 7, 316, 561))
-
-            self.frame_3.setGeometry(QtCore.QRect(5, 4, 1001, 571))
         else:
             self.tab.setGeometry(QtCore.QRect(10, 10, 1001, 601))
 
@@ -1311,571 +892,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.progressBar_2.setGeometry(QtCore.QRect(654, 489, 271, 23))
             self.brand_tab.setGeometry(QtCore.QRect(7, 7, 571, 541))
 
-            self.port_list_2.setGeometry(QtCore.QRect(588, 7, 321, 31))
-            self.refresh_port_2.setGeometry(QtCore.QRect(916, 7, 81, 31))
-            self.log_process_2.setGeometry(QtCore.QRect(587, 50, 411, 421))
-            self.stop_process_2.setGeometry(QtCore.QRect(930, 491, 61, 51))
-            self.current_2.setGeometry(QtCore.QRect(595, 490, 51, 20))
-            self.progressBar_3.setGeometry(QtCore.QRect(654, 520, 271, 23))
-            self.total_2.setGeometry(QtCore.QRect(595, 521, 51, 20))
-            self.progressBar_4.setGeometry(QtCore.QRect(654, 489, 271, 23))
-            self.downloader_tab.setGeometry(QtCore.QRect(7, 7, 571, 541))
-            self.edl_partition_list.setGeometry(QtCore.QRect(7, 50, 551, 233))
-            self.read_button_1.setGeometry(QtCore.QRect(10, 325, 91, 31))
-            self.erase_button_1.setGeometry(QtCore.QRect(106, 325, 91, 31))
-            self.flash_button_1.setGeometry(QtCore.QRect(10, 360, 91, 31))
-            self.backup_button.setGeometry(QtCore.QRect(106, 360, 91, 31))
-            self.directory_line_1.setGeometry(QtCore.QRect(76, 11, 391, 31))
-            self.browse_directory_1.setGeometry(QtCore.QRect(475, 11, 81, 31))
-            self.directory_label_1.setGeometry(QtCore.QRect(10, 11, 61, 31))
-            self.rawprogram_combobox.setGeometry(QtCore.QRect(423, 325, 131, 31))
-            self.patch_combobox.setGeometry(QtCore.QRect(423, 360, 131, 31))
-            self.brand_combobox.setGeometry(QtCore.QRect(423, 394, 131, 31))
-            self.model_combobox.setGeometry(QtCore.QRect(423, 427, 131, 31))
-            self.storage_combobox.setGeometry(QtCore.QRect(423, 460, 131, 31))
-            self.rawprogram_label.setGeometry(QtCore.QRect(308, 325, 111, 31))
-            self.patch_label.setGeometry(QtCore.QRect(348, 360, 71, 31))
-            self.brand_label.setGeometry(QtCore.QRect(348, 394, 71, 31))
-            self.model_label.setGeometry(QtCore.QRect(348, 427, 71, 31))
-            self.storage_label.setGeometry(QtCore.QRect(348, 460, 71, 31))
-            self.browse_loaderpath.setGeometry(QtCore.QRect(243, 460, 75, 31))
-            self.loaderpath_line.setGeometry(QtCore.QRect(90, 460, 151, 31))
-            self.loader_checkbox.setGeometry(QtCore.QRect(14, 460, 71, 31))
-            self.select_all_1.setGeometry(QtCore.QRect(14, 292, 92, 21))
-            self.reboot_1.setGeometry(QtCore.QRect(110, 292, 445, 21))
-            self.fastboot_partition_list.setGeometry(QtCore.QRect(7, 50, 551, 331))
-            self.manual_flash_button.setGeometry(QtCore.QRect(10, 423, 91, 31))
-            self.erase_button_2.setGeometry(QtCore.QRect(106, 423, 91, 31))
-            self.flash_button_2.setGeometry(QtCore.QRect(10, 458, 91, 31))
-            self.directory_line_2.setGeometry(QtCore.QRect(76, 11, 391, 31))
-            self.directory_label_2.setGeometry(QtCore.QRect(10, 11, 61, 31))
-            self.browse_directory_2.setGeometry(QtCore.QRect(475, 11, 81, 31))
-            self.select_all_2.setGeometry(QtCore.QRect(14, 390, 92, 21))
-            self.reboot_2.setGeometry(QtCore.QRect(110, 390, 445, 21))
-            self.script_combobox.setGeometry(QtCore.QRect(401, 423, 151, 31))
-            self.script_label.setGeometry(QtCore.QRect(348, 423, 47, 31))
-
-            self.frame_2.setGeometry(QtCore.QRect(332, 9, 666, 538))
-            self.brand_testpoint_tab.setGeometry(QtCore.QRect(7, 7, 316, 541))
-
-            self.frame_3.setGeometry(QtCore.QRect(5, 4, 1001, 541))
-
         self.check_port()
 
         QtCore.QMetaObject.connectSlotsByName(self)
 
 
-    def brand_name_device(self):
-        return [{"no": 0, "brand_name": "",
-                          "brand_description": ""},
-                {"no": 1, "brand_name": "oppo",
-                          "brand_description": "Oppo"},
-                {"no": 2, "brand_name": "realme",
-                          "brand_description": "Realme"},
-                {"no": 3, "brand_name": "vivo",
-                          "brand_description": "Vivo"},
-                {"no": 4, "brand_name": "xiaomi",
-                          "brand_description": "Xiaomi / Poco"},
-                {"no": 5, "brand_name": "samsung",
-                          "brand_description": "Samsung"}]
-
-    def oppo_device(self):
-        return [{"no": 0,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a33_cph2137",
-                           "device_description": "Oppo A33",
-                           "firehose": "prog_firehose_ddr_Oppo_A33_A53_A53s.elf",
-                           "storage": "emmc"},
-                {"no": 1,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a53_cph2127",
-                           "device_description": "Oppo A53",
-                           "firehose": "prog_firehose_ddr_Oppo_A33_A53_A53s.elf",
-                           "storage": "emmc"},
-                {"no": 2,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a53s_cph2139",
-                           "device_description": "Oppo A53s",
-                           "firehose": "prog_firehose_ddr_Oppo_A33_A53_A53s.elf",
-                           "storage": "emmc"},
-                {"no": 3,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a73_cph2099",
-                           "device_description": "Oppo A73",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 4,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a74_cph2219",
-                           "device_description": "Oppo A74",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 5,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a76_cph2375",
-                           "device_description": "Oppo A76",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 6,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_a95_cph2375",
-                           "device_description": "Oppo A95",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 7,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_f17_cph2095",
-                           "device_description": "Oppo F17",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 8,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_f19_cph2219",
-                           "device_description": "Oppo F19",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 9,  "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_f21pro_cph2219",
-                           "device_description": "Oppo F21 Pro",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"},
-                {"no": 10, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno4_oldsec_cph2113",
-                           "device_description": "Oppo Reno4 (Old security)",
-                           "firehose": "prog_firehose_ddr_OppoReno4OldSec2019.mbn",
-                           "storage": "ufs"},
-                {"no": 11, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno4_newsec_cph2113",
-                           "device_description": "Oppo Reno4 (New security)",
-                           "firehose": "prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf",
-                           "storage": "ufs"},
-                {"no": 12, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno4pro_cph2109",
-                           "device_description": "Oppo Reno4 Pro",
-                           "firehose": "prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf",
-                           "storage": "ufs"},
-                {"no": 13, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno5_cph2159",
-                           "device_description": "Oppo Reno5",
-                           "firehose": "prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf",
-                           "storage": "ufs"},
-                {"no": 14, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno6_cph2235",
-                           "device_description": "Oppo Reno6",
-                           "firehose": "prog_firehose_ddr_Oppo_Reno4NewSec2021CPH2113_Reno4ProCPH2109_Reno5CPH2159_Reno4G_Reno6CPH2235.elf",
-                           "storage": "ufs"},
-                {"no": 15, "brand_name": "oppo",
-                           "brand_description": "Oppo",
-                           "device_name": "oppo_reno7_cph2363",
-                           "device_description": "Oppo Reno7",
-                           "firehose": "prog_firehose_ddr_OppoReno7CPH2363_OppoA73CPH2099_OppoA74CPH2119_OppoA76CPH2375_OppoA95CPH2365_OppoF17CPH2095_OppoF19CPH2219_OppoF21PRO.elf",
-                           "storage": "ufs"}]
-
-    def realme_device(self):
-        return [{"no": 0, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realme6pro_rmx2061",
-                          "device_description": "Realme 6 Pro",
-                          "firehose": "prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf",
-                          "storage": "ufs"},
-                {"no": 1, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realme7i_rmx2103",
-                          "device_description": "Realme 7i",
-                          "firehose": "prog_firehose_ddr_Realme7iRMX2103_Realme9RMX3521.elf",
-                          "storage": "ufs"},
-                {"no": 2, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realme7pro_rmx2170",
-                          "device_description": "Realme 7 Pro",
-                          "firehose": "prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf",
-                          "storage": "ufs"},
-                {"no": 3, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realme8pro_rmx3091",
-                          "device_description": "Realme 8 Pro",
-                          "firehose": "prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf",
-                          "storage": "ufs"},
-                {"no": 4, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realme9_rmx3521",
-                          "device_description": "Realme 9",
-                          "firehose": "prog_firehose_ddr_Realme6Pro_Realme7Pro_Realme8Pro.elf",
-                          "storage": "ufs"},
-                {"no": 5, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realmec15_rmx2195",
-                          "device_description": "Realme C15",
-                          "firehose": "prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf",
-                          "storage": "emmc"},
-                {"no": 6, "brand_name": "realme",
-                          "brand_description": "Realme",
-                          "device_name": "realmec17_rmx2101",
-                          "device_description": "Realme C17",
-                          "firehose": "prog_firehose_ddr_RealmeC15RMX2195_RealmeC17_RMX2101.elf",
-                          "storage": "emmc"}]
-
-    def vivo_device(self):
-        return [{"no": 0,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_iq00",
-                           "device_description": "Vivo IQ00 UI",
-                           "firehose": "prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf",
-                           "storage": "ufs"},
-                {"no": 1,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y20_oldsec",
-                           "device_description": "Vivo Y20 (Old security)",
-                           "firehose": "prog_firehose_ddr_vivo_Y20_Y20i_Y20s.elf",
-                           "storage": "emmc"},
-                {"no": 2,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y20_newsec",
-                           "device_description": "Vivo Y20 (New security)",
-                           "firehose": "prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf",
-                           "storage": "ufs"},
-                {"no": 3,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y50t",
-                           "device_description": "Vivo Y50T",
-                           "firehose": "prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf",
-                           "storage": "ufs"},
-                {"no": 4,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y53",
-                           "device_description": "Vivo Y53",
-                           "firehose": "prog_firehose_8917_ddr_vivo_y53_y53l.mbn",
-                           "storage": "emmc"},
-                {"no": 5,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y55",
-                           "device_description": "Vivo Y55/L",
-                           "firehose": "prog_emmc_firehose_8937_y91_y93_y95_v11.mbn",
-                           "storage": "emmc"},
-                {"no": 6,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y65",
-                           "device_description": "Vivo Y65",
-                           "firehose": "prog_firehose_8917_ddr_vivo_y65.mbn",
-                           "storage": "emmc"},
-                {"no": 7,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y71",
-                           "device_description": "Vivo Y71",
-                           "firehose": "prog_firehose_8917_ddr_vivo_y71.mbn",
-                           "storage": "emmc"},
-                {"no": 8,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y91",
-                           "device_description": "Vivo Y91/i",
-                           "firehose": "prog_emmc_firehose_8937_y91_y93_y95_v11.mbn",
-                           "storage": "emmc"},
-                {"no": 9,  "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y93",
-                           "device_description": "Vivo Y93",
-                           "firehose": "prog_emmc_firehose_8937_y91_y93_y95_v11.mbn",
-                           "storage": "emmc"},
-                {"no": 10, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_y95",
-                           "device_description": "Vivo Y95",
-                           "firehose": "prog_emmc_firehose_8937_y91_y93_y95_v11.mbn",
-                           "storage": "emmc"},
-                {"no": 11, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_v9",
-                           "device_description": "Vivo V9",
-                           "firehose": "prog_emmc_firehose_8953_ddr_vivo_v9.mbn",
-                           "storage": "emmc"},
-                {"no": 12, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_v9yth",
-                           "device_description": "Vivo V9 Youth",
-                           "firehose": "prog_emmc_firehose_8953_ddr_vivo_v9_youth.mbn",
-                           "storage": "emmc"},
-                {"no": 13, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_v11pro",
-                           "device_description": "Vivo V11 Pro",
-                           "firehose": "prog_emmc_firehose_8937_y91_y93_y95_v11.mbn",
-                           "storage": "emmc"},
-                {"no": 14, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_v20_newsec",
-                           "device_description": "Vivo V20",
-                           "firehose": "prog_firehose_ddr_vivo_IQOOU1_Y20_Y50T_V20.elf",
-                           "storage": "ufs"},
-                {"no": 15, "brand_name": "vivo",
-                           "brand_description": "Vivo",
-                           "device_name": "vivo_v21e",
-                           "device_description": "Vivo V21E",
-                           "firehose": "prog_firehose_ddr_vivo_V21e.elf",
-                           "storage": "ufs"}]
-
-    def xiaomi_poco_device(self):
-        return [{"no": 0,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi8ee_ursa",
-                           "device_description": "Xiaomi Mi 8 EE",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_mi8ee_ursa_sig_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 1,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi8se_sirius",
-                           "device_description": "Xiaomi Mi 8 SE",
-                           "firehose": "prog_emmc_firehose_Sdm670_ddr_xiaomi_mi8se_sirius_sig_rb1.mbn",
-                           "storage": "ufs"},
-                {"no": 2,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi8ud_equuleus",
-                           "device_description": "Xiaomi Mi 8 UD",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_mi8ud_equuleus_sig_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 3,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi9t_rapahel",
-                           "device_description": "Xiaomi Mi 9T",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_Mi9T.elf",
-                           "storage": "ufs"},
-                {"no": 4,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi10lite_toco",
-                           "device_description": "Xiaomi Mi 10 Lite",
-                           "firehose": "prog_ufs_firehose_MiNote10Lite.elf",
-                           "storage": "ufs"},
-                {"no": 5,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mi11tpro_vili",
-                           "device_description": "Xiaomi 11T Pro",
-                           "firehose": "prog_ufs_firehose_Mi11TProUFS.elf",
-                           "storage": "ufs"},
-                {"no": 6,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mia2_jasime",
-                           "device_description": "Xiaomi Mi A2",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_mia2_jasmine_rb2.elf",
-                           "storage": "emmc"},
-                {"no": 7,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mia2lite_daisy",
-                           "device_description": "Xiaomi Mi A2 Lite",
-                           "firehose": "prog_emmc_firehose_8953_ddr_mia2lite_daisy_rb1.mbn",
-                           "storage": "emmc"},
-                {"no": 8,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mimax2_chiron",
-                           "device_description": "Xiaomi Mi Max 2",
-                           "firehose": "prog_ufs_firehose_8998_ddr_xiaomi_mimax2_chiron_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 9,  "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mimax3_nitrogen",
-                           "device_description": "Xiaomi Mi Max 3",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_xiaomi1_mimax3_nitrogen_rb4.elf",
-                           "storage": "emmc"},
-                {"no": 10, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mimix_lithium",
-                           "device_description": "Xiaomi Mi Mix",
-                           "firehose": "prog_ufs_firehose_8996_ddr_xiaomi_mimix_lithium_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 11, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mimix2s_polaris",
-                           "device_description": "Xiaomi Mi Mix 2S",
-                           "firehose": "prog_ufs_firehose_Sdm845_ddr_xiaomi_sig_mimix2s_polaris_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 12, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mimix3_perseus",
-                           "device_description": "Xiaomi Mi Mix 3",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_sig_mimix3_perseus_rb2.elf",
-                           "storage": "ufs"},
-                {"no": 13, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "minote2_scorpio",
-                           "device_description": "Xiaomi Mi Note 2",
-                           "firehose": "prog_ufs_firehose_8996_ddr_xiaomi_minote2_scorpio_rb1.elf",
-                           "storage": "ufs"},
-                {"no": 14, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "minote3_jason",
-                           "device_description": "Xiaomi Mi Note 3",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_xiaomi_minote3_jason_rb1.elf",
-                           "storage": "emmc"},
-                {"no": 15, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "mipad4_clover",
-                           "device_description": "Xiaomi Mi Pad 4",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_xiaomi_mipad4_clover_s_rb4.elf",
-                           "storage": "emmc"},
-                {"no": 16, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "pocof1_beryllium",
-                           "device_description": "Xiaomi Poco F1",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_pocof1_beryllium_sig_rb1.mbn",
-                           "storage": "ufs"},
-                {"no": 17, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "pocom2pro_gramin",
-                           "device_description": "Xiaomi Poco M2 Pro",
-                           "firehose": "prog_ufs_firehose_MiPocoM2Pro.elf",
-                           "storage": "ufs"},
-                {"no": 18, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "pocom3_citrus",
-                           "device_description": "Xiaomi Poco M3",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_MiPocoM3.elf",
-                           "storage": "ufs"},
-                {"no": 19, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "redmi5a_riva",
-                           "device_description": "Xiaomi Redmi 5A",
-                           "firehose": "prog_emmc_firehose_8953_ddr_xiaomi_redmi5a.mbn",
-                           "storage": "emmc"},
-                {"no": 20, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "redmi6pro_sakura",
-                           "device_description": "Xiaomi Redmi 6 Pro",
-                           "firehose": "prog_emmc_firehose_8953_ddr_xiaomi_6pro_sakura_rb1.mbn",
-                           "storage": "emmc"},
-                {"no": 21, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "redmi7_onclite",
-                           "device_description": "Xiaomi Redmi 7",
-                           "firehose": "prog_emmc_firehose_8953_ddr_redmi7_onc_onclite.mbn",
-                           "storage": "emmc"},
-                {"no": 22, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "redmi9t_lime",
-                           "device_description": "Xiaomi Redmi 9T",
-                           "firehose": "prog_ufs_firehose_sdm845_ddr_Mi9Power.elf",
-                           "storage": "ufs"},
-                {"no": 23, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "redmik20pro_raphael",
-                           "device_description": "Xiaomi Redmi K20 Pro",
-                           "firehose": "prog_ufs_firehose_RedmiK20Pro.elf",
-                           "storage": "ufs"},
-                {"no": 24, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note5_whyred",
-                           "device_description": "Xiaomi Redmi Note 5",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_note5_whyred_s_rb4.elf",
-                           "storage": "emmc"},
-                {"no": 25, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note5pro_whyred",
-                           "device_description": "Xiaomi Redmi Note 5 Pro",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_xiaomi_note5pro_whyred_s_rb4.elf",
-                           "storage": "emmc"},
-                {"no": 26, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note5a_ugglite",
-                           "device_description": "Xiaomi Redmi Note 5A",
-                           "firehose": "prog_emmc_firehose_8917_ddr_note5a_ugglite.mbn",
-                           "storage": "emmc"},
-                {"no": 27, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note6pro_tulip",
-                           "device_description": "Xiaomi Redmi Note 6 Pro",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_xiaomi_note6pro_tulip_s_rb4.elf",
-                           "storage": "emmc"},
-                {"no": 28, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note7_lavender",
-                           "device_description": "Xiaomi Redmi Note 7",
-                           "firehose": "prog_emmc_firehose_Sdm660_ddr_redminote7_lavender.mbn",
-                           "storage": "emmc"},
-                {"no": 29, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note8_ginkgo",
-                           "device_description": "Xiaomi Redmi Note 8",
-                           "firehose": "prog_ufs_firehose_RedmiNote8.elf",
-                           "storage": "ufs"},
-                {"no": 30, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note9s_curtana",
-                           "device_description": "Xiaomi Redmi Note 9S",
-                           "firehose": "prog_ufs_firehose_MiNote9s.elf",
-                           "storage": "ufs"},
-                {"no": 31, "brand_name": "xiaomi",
-                           "brand_description": "Xiaomi / Poco",
-                           "device_name": "note9pro_joyeuse",
-                           "device_description": "Xiaomi Redmi Note 9 Pro",
-                           "firehose": "prog_ufs_firehose_MiNote9Pro.elf",
-                           "storage": "ufs"}]
-
-    def samsung_device(self):
-        return [{"no": 0, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a015f",
-                          "device_description": "Samsung A01 [SM-A015F]",
-                          "firehose": "prog_emmc_firehose_8937_A015F.mbn",
-                          "storage": "emmc"},
-                {"no": 1, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a025f",
-                          "device_description": "Samsung A02 [SM-A025F]",
-                          "firehose": "prog_emmc_firehose_8937_A025F.mbn",
-                          "storage": "emmc"},
-                {"no": 2, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a115a",
-                          "device_description": "Samsung A11 [SM-A115A]",
-                          "firehose": "prog_emmc_firehose_8953_A115A.mbn",
-                          "storage": "emmc"},
-                {"no": 3, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a115f",
-                          "device_description": "Samsung A11 [SM-A115F]",
-                          "firehose": "prog_emmc_firehose_8953_A115F.mbn",
-                          "storage": "emmc"},
-                {"no": 4, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a115u",
-                          "device_description": "Samsung A11 [SM-A115U]",
-                          "firehose": "prog_emmc_firehose_8953_A115U.mbn",
-                          "storage": "emmc"},
-                {"no": 5, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_a705f",
-                          "device_description": "Samsung A70 [SM-A705F]",
-                          "firehose": "prog_ufs_firehose_ddr_A705F.mbn",
-                          "storage": "ufs"},
-                {"no": 6, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_j415f",
-                          "device_description": "Samsung J4 Plus [SM-J415F]",
-                          "firehose": "prog_ufs_firehose_8917_J415F.mbn",
-                          "storage": "ufs"},
-                {"no": 7, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_j610f",
-                          "device_description": "Samsung J6 Plus [SM-J610F]",
-                          "firehose": "prog_ufs_firehose_8917_J610F.mbn",
-                          "storage": "ufs"},
-                {"no": 8, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_m025f",
-                          "device_description": "Samsung M02s [SM-M025F]",
-                          "firehose": "prog_emmc_firehose_8953_M025F.mbn",
-                          "storage": "emmc"},
-                {"no": 9, "brand_name": "samsung",
-                          "brand_description": "Samsung",
-                          "device_name": "sm_m115f",
-                          "device_description": "Samsung M11 [SM-M115F]",
-                          "firehose": "prog_emmc_firehose_8953_M115F.mbn",
-                          "storage": "emmc"}]
-
-    def getDevices(self):
+    def getdevices(self):
         if self.brand_tab.currentIndex() == 0:
             if self.oppo_radiobutton1.isChecked():      return self.oppo_radiobutton1.objectName()
             if self.oppo_radiobutton2.isChecked():      return self.oppo_radiobutton2.objectName()
@@ -1967,7 +989,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if self.samsung_radiobutton9.isChecked():   return self.samsung_radiobutton9.objectName()
             if self.samsung_radiobutton10.isChecked():  return self.samsung_radiobutton10.objectName()
 
-    def getCommand_method(self):
+    def getcommand_method(self):
         for i in range(3):
             if self.brand_tab.currentIndex() == i:
                 if self.command_bbk_radiobutton1.isChecked():    return self.command_bbk_radiobutton1.objectName()
@@ -2019,7 +1041,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if self.command_uni_radiobutton12.isChecked():  return self.command_uni_radiobutton12.objectName()
             if self.command_uni_radiobutton13.isChecked():  return self.command_uni_radiobutton13.objectName()
 
-    def setAdb_method(self):
+    def setadb_method(self):
         if self.adb_radiobutton1.isChecked():
             self.command_uni_radiobutton10.setChecked(True)
 
@@ -2064,23 +1086,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.adb_debugging_label.setEnabled(False)
             self.command_uni_radiobutton13.setEnabled(False)
 
-    def getAdb_method(self):
+    def getadb_method(self):
         if self.brand_tab.currentIndex() == 5:
-            self.setAdb_method()
+            self.setadb_method()
             return "other"
 
     def do_unlock(self):
-        threading.Thread(target = self.thread_unlock, daemon = True).start()
-
-    def thread_unlock(self):
         self.progressBar_1.setValue(0)
         self.progressBar_2.setValue(0)
 
-        method_selected = self.getAdb_method()
-        device_selected = self.getDevices()
-        command_selected = self.getCommand_method()
+        method_selected = self.getadb_method()
+        device_selected = self.getdevices()
+        command_selected = self.getcommand_method()
 
-        for item in self.oppo_device():
+        for item in \
+            getdevices.oppo() + getdevices.realme() + getdevices.vivo() + \
+            getdevices.xiaomi_poco() + getdevices.samsung():
             if device_selected == item["device_name"]:
                 device_name = item["device_name"]
                 device_description = item["device_description"]
@@ -2088,92 +1109,41 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 brand_description = item["brand_description"]
                 firehose = item["firehose"]
                 storage = item["storage"]
-        for item in self.realme_device():
-            if device_selected == item["device_name"]:
-                device_name = item["device_name"]
-                device_description = item["device_description"]
-                brand_name = item["brand_name"]
-                brand_description = item["brand_description"]
-                firehose = item["firehose"]
-                storage = item["storage"]
-        for item in self.vivo_device():
-            if device_selected == item["device_name"]:
-                device_name = item["device_name"]
-                device_description = item["device_description"]
-                brand_name = item["brand_name"]
-                brand_description = item["brand_description"]
-                firehose = item["firehose"]
-                storage = item["storage"]
-        for item in self.xiaomi_poco_device():
-            if device_selected == item["device_name"]:
-                device_name = item["device_name"]
-                device_description = item["device_description"]
-                brand_name = item["brand_name"]
-                brand_description = item["brand_description"]
-                firehose = item["firehose"]
-                storage = item["storage"]
-        for item in self.samsung_device():
-            if device_selected == item["device_name"]:
-                device_name = item["device_name"]
-                device_description = item["device_description"]
-                brand_name = item["brand_name"]
-                brand_description = item["brand_description"]
-                firehose = item["firehose"]
-                storage = item["storage"]
+        for item in getdevices.command_method():
+            if command_selected == item["command"]:
+                command_description = item["description"]
 
-        if command_selected == "userdata":               command_description = "Factory reset"
-        elif command_selected == "misc":                 command_description = "Safe format data"
-        elif command_selected == "micloud":              command_description = "Reset MiCloud"
-        elif command_selected == "frp":                  command_description = "Reset FRP"
-        elif command_selected == "efs":                  command_description = "Reset EFS"
-        elif command_selected == "unlock_bl":            command_description = "Unlock Bootloader"
-        elif command_selected == "unlock_bl_1":          command_description = "Unlock Bootloader (Fastboot: Method 1)"
-        elif command_selected == "unlock_bl_2":          command_description = "Unlock Bootloader (Fastboot: Method 2)"
-        elif command_selected == "relock_bl":            command_description = "Lock Bootloader"
-        elif command_selected == "relock_bl_1":          command_description = "Lock Bootloader (Fastboot: Method 1)"
-        elif command_selected == "relock_bl_2":          command_description = "Lock Bootloader (Fastboot: Method 2)"
-        elif command_selected == "adb_recovery":         command_description = "Reboot to Recovery (ADB mode)"
-        elif command_selected == "fastboot_recovery":    command_description = "Reboot to Recovery (Fastboot)"
-        elif command_selected == "adb_fastboot":         command_description = "Reboot to Fastboot (ADB mode)"
-        elif command_selected == "fastboot_reboot":      command_description = "Reboot to Fastboot (Fastboot)"
-        elif command_selected == "adb_edl":              command_description = "Reboot to EDL mode (ADB mode)"
-        elif command_selected == "fastboot_edl_1":       command_description = "Reboot to EDL mode (Fastboot: Method 1)"
-        elif command_selected == "fastboot_edl_2":       command_description = "Reboot to EDL mode (Fastboot: Method 2)"
-        elif command_selected == "fastboot_frp":         command_description = "Reset FRP (Fastboot)"
-        elif command_selected == "fastboot_demo_1":      command_description = "Reset Demo mode (Fastboot: Method 1)"
-        elif command_selected == "fastboot_demo_2":      command_description = "Reset Demo mode (Fastboot: Method 2)"
-        elif command_selected == "adb_frp":              command_description = "Reset FRP (ADB mode)"
-        elif command_selected == "adb_erasefrp":         command_description = "Erase FRP (ADB mode)"
-        elif command_selected == "adb_pushfrp":          command_description = "Push FRP (ADB mode)"
-        elif command_selected == "oppo_demo":            command_description = "Reset Oppo Demo mode (ADB mode)"
+        self.log_process_1.clear()
+        self.log_process_1.append(f"<p>\
+        <span style=\"color:#ffffff\">Selected device: </span><span style=\"color:#ffff00\">{device_description}</span><br/>\
+        <span style=\"color:#ffffff\">Selected brand: </span><span style=\"color:#ffff00\">{brand_description}</span><br/>\
+        <span style=\"color:#ffffff\">Method options: </span><span style=\"color:#ffff00\">{command_description}</span><br/>\
+        </p>")
 
-        print("Selected device: ", device_description)
-        print("Selected brand:  ", brand_description)
-        print("Method options:  ", command_description)
-
-        print()
-
-        print("Searching port connected...", end = "")
+        self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Searching port connected...</span>")
         sleep(5)
         self.progressBar_1.setValue(5)
         self.progressBar_2.setValue(5)
 
         port = self.port_list_1.currentText().split("  -  ")[0]
         if port:
-            print("  [OK]")
-            print("Port:", port.split)
-            print("Description:", self.port_list_1.currentText().split("  -  ")[1])
+            port_description = self.port_list_1.currentText().split("  -  ")[1]
+            self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+            self.log_process_1.append(f"<p>\
+            <span style=\"color:#ffffff\">Port: </span><span style=\"color:#ffff00\">{port}</span><br/>\
+            <span style=\"color:#ffffff\">Description: </span><span style=\"color:#ffff00\">{port_description}</span><br/>\
+            </p>")
             self.progressBar_1.setValue(10)
-            self.progressBar_1.setValue(10)
+            self.progressBar_2.setValue(10)
         else:
-            print("  [ERROR]")
-            return 1
+            self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p>")
+            return
 
         print()
 
         for port_type in ["COM", "tty"]:
             if re.search(port_type, port):
-                print("Connecting to device...")
+                self.log_process_1.append(f"<span style=\"color:#ffffff\">Connecting to device...</span>")
                 try:
                     infotxt = open(log_path + "/info.txt", "w")
                     check_hw = \
@@ -2182,853 +1152,373 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                         [emmcdl_program + " -p " + port + " -info"]
 
                     subprocess.call(check_hw, stdout = infotxt, stderr = subprocess.DEVNULL)
+                    self.progressBar_1.setValue(13)
+                    self.progressBar_2.setValue(13)
                 except:
-                    return 1
+                    return
 
                 for text in open(log_path + "/info.txt").readlines():
                     IDS_SN = re.findall("SerialNumber: (.*)", text)[0].split("x")[1]
                     OEM_PK = re.findall("OEM_PK_HASH: (.*)", text)[0].split("x")[1]
                     MSM_HW = re.findall("MSM_HW_ID: (.*)", text)[0].split("x")[1] + "0000000000000000"
 
-                print("IDS SN: ", IDS_SN)
-                print("MSM HW: ", MSM_HW)
-                print("OEM PK: ", OEM_PK)
-                print()
+                self.progressBar_1.setValue(18)
+                self.progressBar_2.setValue(18)
+                self.log_process_1.append(f"<p>\
+                <span style=\"color:#ffffff\">IDS SN: </span><span style=\"color:#ffff00\">{IDS_SN}</span><br/>\
+                <span style=\"color:#ffffff\">MSM HW: </span><span style=\"color:#ffff00\">{MSM_HW}</span><br/>\
+                <span style=\"color:#ffffff\">OEM PK: </span><span style=\"color:#ffff00\">{OEM_PK}</span><br/>\
+                <br/></p>")
 
                 with currentdir + "/data/loader/" + brand_name + "/" + firehose as firehose_path:
                     if not os.path.exists(firehose_path):
-                        print("Connecting server...", end = "")
+                        self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Connecting server...</span>")
                         try:
                             repo_firehose = repos + "/raw/additional/data/loader/" + brand_name + "/" + firehose
                             request.urlopen(repos, timeout = 3)
                             request.urlretrieve(repo_firehose, temp_path + "/" + firehose)
-                            print("  [OK]")
+                            self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
                             firehose_loader = firehose, temp_path + "/" + firehose
+                            self.progressBar_1.setValue(26)
+                            self.progressBar_2.setValue(26)
                         except:
-                            print("  [ERROR]")
-                            print("Failed connect the server.")
-                            return 1
+                            self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
+                            self.log_process_1.append(f"<span style=\"color:#ff0000\">Failed connect the server.</span>")
+                            return
                     else:
+                        self.progressBar_1.setValue(31)
+                        self.progressBar_2.setValue(31)
                         firehose_loader = firehose_path
-
-                print()
 
         for bbk in ["oppo", "realme", "vivo"]:
             if brand_name == bbk:
                 if command_selected == "userdata":
-                    print("Erasing all data...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                     try:
-                        erase_userdata = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "userdata", "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e userdata -memoryname " + storage]
-
-                        subprocess.call(erase_userdata, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.userdata(port, firehose_loader, storage)
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return 1
-
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
                 elif command_selected == "misc":
-                    print("Getting GPT partition...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                     try:
-                        partitionxml = open(log_path + "/partition.xml", "w")
-                        check_gpt = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                        subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.safe_storage(port, firehose_loader, storage)
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return
-
-                    xml_path = currentdir + "/data/xml"
-                    patchxml = "/patch.xml"
-                    if os.path.exists(xml_path + patchxml):
-                        shutil.copyfile(xml_path + patchxml, log_path + patchxml)
-                        patchxml = log_path + patchxml
-                    else:
-                        repo_patch = repos + "/raw/additional/data/xml/patch.xml"
-                        request.urlretrieve(repo_patch, temp_path + patchxml)
-                        patchxml = temp_path + patchxml
-
-                    for lines in open(partitionxml).readlines():
-                        if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                            sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                        if re.search("misc", lines):
-                            lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                    with open(patchxml, "r+") as newfile:
-                        text = newfile.read()
-                        text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                        text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                        newfile.seek(0)
-                        newfile.write(text)
-                        newfile.truncate()
-
-                    print("Erasing userdata without losing internal storage...", end = "")
-                    try:
-                        safe_storage = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                        subprocess.call(safe_storage, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
                 elif command_selected == "frp":
-                    print("Resetting FRP...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting FRP...</span>")
                     try:
-                        erase_frp = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "frp", "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e frp -memoryname " + storage]
-
-                        subprocess.call([erase_frp], stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.frp(port, firehose_loader, storage, "frp")
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return 1
-
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
                 elif command_selected == "efs":
-                    print("Backing up EFS IMEI...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting EFS IMEI...</span>")
                     try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_" + partition + ".img"
-                            backup_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", partition, "-o", backup_file, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d " + partition + " -o " + backup_file + " -memoryname " + storage]
-
-                            subprocess.call(backup_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.efs(port, firehose_loader, storage)
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return 1
-
-                    print("Resetting EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            erase_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", partition, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e " + partition + " -memoryname " + storage]
-
-                            subprocess.call(erase_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
                 elif command_selected == "unlock_bl":
-                    print("Getting GPT partition...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Unlocking bootloader...</span>")
                     try:
-                        partitionxml = open(log_path + "/partition.xml", "w")
-                        check_gpt = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                        subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.unlock_bl(port, firehose_loader, storage, brand_name)
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return
-
-                    xml_path = currentdir + "/data/xml"
-                    old_patchxml = "/" + brand_name + "-unlock-bl-patch.xml"
-                    patchxml = "/patch.xml"
-                    if os.path.exists(xml_path + old_patchxml):
-                        shutil.copyfile(xml_path + old_patchxml, log_path + patchxml)
-                        patchxml = log_path + patchxml
-                    else:
-                        repo_patch = repos + "/raw/additional/data/xml/" + brand_name + "-unlock-bl-patch.xml"
-                        request.urlretrieve(repo_patch, temp_path + patchxml)
-                        patchxml = temp_path + patchxml
-
-                    for lines in open(partitionxml).readlines():
-                        if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                            sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                        if re.search("devinfo", lines):
-                            lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                    with open(patchxml, "r+") as newfile:
-                        text = newfile.read()
-                        text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                        text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                        newfile.seek(0)
-                        newfile.write(text)
-                        newfile.truncate()
-
-                    print("Unlocking Bootloader...", end = "")
-                    try:
-                        unlock_bootloader = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                        subprocess.call(unlock_bootloader, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
                 elif command_selected == "relock_bl":
-                    print("Getting GPT partition...", end = "")
+                    self.progressBar_1.setValue(39)
+                    self.progressBar_2.setValue(39)
+                    self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Locking bootloader...</span>")
                     try:
-                        partitionxml = open(log_path + "/partition.xml", "w")
-                        check_gpt = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                        subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
+                        unlock.relock_bl(port, firehose_loader, storage, brand_name)
+                        self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                        self.progressBar_1.setValue(100)
+                        self.progressBar_2.setValue(100)
                     except:
-                        print("  [ERROR]")
-                        return
-
-                    xml_path = currentdir + "/data/xml"
-                    old_patchxml = "/" + brand_name + "-relock-bl-patch.xml"
-                    patchxml = "/patch.xml"
-                    if os.path.exists(xml_path + old_patchxml):
-                        shutil.copyfile(xml_path + old_patchxml, log_path + patchxml)
-                        patchxml = log_path + patchxml
-                    else:
-                        repo_patch = repos + "/raw/additional/data/xml/" + brand_name + "-relock-bl-patch.xml"
-                        request.urlretrieve(repo_patch, temp_path + patchxml)
-                        patchxml = temp_path + patchxml
-
-                    for lines in open(partitionxml).readlines():
-                        if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                            sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                        if re.search("devinfo", lines):
-                            lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                    with open(patchxml, "r+") as newfile:
-                        text = newfile.read()
-                        text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                        text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                        newfile.seek(0)
-                        newfile.write(text)
-                        newfile.truncate()
-
-                    print("Backing up devinfo...", end = "")
-                    try:
-                        backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_devinfo.img"
-                        backup_devinfo = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", "devinfo", "-o", backup_file, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d devinfo -o " + backup_file + " -memoryname " + storage]
-
-                        subprocess.call(backup_devinfo, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
-                    print("Locking Bootloader...", end = "")
-                    try:
-                        lock_bootloader = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                        subprocess.call(lock_bootloader, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                        self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
 
         if brand_name == "xiaomi":
             if command_selected == "userdata":
-                print("Erasing all data...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    erase_userdata = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "userdata", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e userdata -memoryname " + storage]
-
-                    subprocess.call(erase_userdata, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.userdata(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "misc":
-                print("Getting GPT partition...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    partitionxml = open(log_path + "/partition.xml", "w")
-                    check_gpt = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                    subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.safe_storage(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return
-
-                xml_path = currentdir + "/data/xml"
-                patchxml = "/patch.xml"
-                if os.path.exists(xml_path + patchxml):
-                    shutil.copyfile(xml_path + patchxml, log_path + patchxml)
-                    patchxml = log_path + patchxml
-                else:
-                    repo_patch = repos + "/raw/additional/data/xml/patch.xml"
-                    request.urlretrieve(repo_patch, temp_path + patchxml)
-                    patchxml = temp_path + patchxml
-
-                for lines in open(partitionxml).readlines():
-                    if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                        sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                    if re.search("misc", lines):
-                        lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                with open(patchxml, "r+") as newfile:
-                    text = newfile.read()
-                    text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                    text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                    newfile.seek(0)
-                    newfile.write(text)
-                    newfile.truncate()
-
-                print("Erasing userdata without losing internal storage...", end = "")
-                try:
-                    safe_storage = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                    subprocess.call(safe_storage, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "micloud":
-                print("Backing up persist and persistbak...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting MiCloud...</span>")
                 try:
-                    for partition in ["persist", "persistbak"]:
-                        backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_" + partition + ".img"
-                        backup_persist = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", partition, "-o", backup_file, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d " + partition + " -o " + backup_file + " -memoryname " + storage]
-
-                        subprocess.call(backup_persist, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.micloud(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
-                print("Resetting MiCloud...", end = "")
-                try:
-                    for partition in ["persist", "persistbak"]:
-                        erase_persist = \
-                            [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", partition, "-memoryname", storage] \
-                            if platform.system() == "Windows" else \
-                            [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e " + partition + " -memoryname " + storage]
-
-                        subprocess.call(erase_persist, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "frp":
-                print("Resetting FRP...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting FRP...</span>")
                 try:
-                    erase_frp = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "config", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e config -memoryname " + storage]
-
-                    subprocess.call(erase_frp, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.frp(port, firehose_loader, storage, "config")
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "efs":
-                    print("Backing up EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_" + partition + ".img"
-                            backup_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", partition, "-o", backup_file, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d " + partition + " -o " + backup_file + " -memoryname " + storage]
-
-                            subprocess.call(backup_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
-                    print("Resetting EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            erase_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", partition, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e " + partition + " -memoryname " + storage]
-
-                            subprocess.call(erase_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting EFS IMEI...</span>")
+                try:
+                    unlock.efs(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
+                except:
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "unlock_bl":
-                print("Getting GPT partition...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Unlocking bootloader...</span>")
                 try:
-                    partitionxml = open(log_path + "/partition.xml", "w")
-                    check_gpt = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                    subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.unlock_bl(port, firehose_loader, storage, brand_name)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return
-
-                xml_path = currentdir + "/xml"
-                old_patchxml = "/xiaomi-unlock-bl-patch.xml"
-                patchxml = "/patch.xml"
-                if os.path.exists(xml_path + old_patchxml):
-                    shutil.copyfile(xml_path + old_patchxml, log_path + patchxml)
-                    patchxml = log_path + patchxml
-                else:
-                    repo_patch = repos + "/raw/additional/data/xml/xiaomi-unlock-bl-patch.xml"
-                    request.urlretrieve(repo_patch, temp_path + patchxml)
-                    patchxml = temp_path + patchxml
-
-                for lines in open(partitionxml).readlines():
-                    if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                        sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                    if re.search("devinfo", lines):
-                        lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                with open(patchxml, "r+") as newfile:
-                    text = newfile.read()
-                    text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                    text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                    newfile.seek(0)
-                    newfile.write(text)
-                    newfile.truncate()
-
-                print("Unlocking Bootloader...", end = "")
-                try:
-                    unlock_bootloader = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                    subprocess.call(unlock_bootloader, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "relock_bl":
-                print("Getting GPT partition...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Locking bootloader...</span>")
                 try:
-                    partitionxml = open(log_path + "/partition.xml", "w")
-                    check_gpt = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                    subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.relock_bl(port, firehose_loader, storage, brand_name)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return
-
-                xml_path = currentdir + "/data/xml"
-                old_patchxml = "/xiaomi-relock-bl-patch.xml"
-                patchxml = "/patch.xml"
-                if os.path.exists(xml_path + old_patchxml):
-                    shutil.copyfile(xml_path + old_patchxml, log_path + patchxml)
-                    patchxml = log_path + patchxml
-                else:
-                    repo_patch = repos + "/raw/additional/data/xml/xiaomi-relock-bl-patch.xml"
-                    request.urlretrieve(repo_patch, temp_path + patchxml)
-                    patchxml = temp_path + patchxml
-
-                for lines in open(partitionxml).readlines():
-                    if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                        sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                    if re.search("devinfo", lines):
-                        lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                with open(patchxml, "r+") as newfile:
-                    text = newfile.read()
-                    text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                    text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                    newfile.seek(0)
-                    newfile.write(text)
-                    newfile.truncate()
-
-                print("Backing up devinfo...", end = "")
-                try:
-                    backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_devinfo.img"
-                    backup_devinfo = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", "devinfo", "-o", backup_file, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d devinfo -o " + backup_file + " -memoryname " + storage]
-
-                    subprocess.call(backup_devinfo, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
-                print("Locking Bootloader...", end = "")
-                try:
-                    lock_bootloader = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                    subprocess.call(lock_bootloader, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
 
         if brand_name == "samsung":
             if command_selected == "userdata":
-                print("Erasing all data...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    erase_userdata = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "userdata", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e userdata -memoryname " + storage]
-
-                    subprocess.call(erase_userdata, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.userdata(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "misc":
-                print("Getting GPT partition...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    partitionxml = open(log_path + "/partition.xml", "w")
-                    check_gpt = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                    subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.safe_storage(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return
-
-                xml_path = currentdir + "/data/xml"
-                patchxml = "/patch.xml"
-                if os.path.exists(xml_path + patchxml):
-                    shutil.copyfile(xml_path + patchxml, log_path + patchxml)
-                    patchxml = log_path + patchxml
-                else:
-                    repo_patch = repos + "/raw/additional/data/xml/patch.xml"
-                    request.urlretrieve(repo_patch, temp_path + patchxml)
-                    patchxml = temp_path + patchxml
-
-                for lines in open(partitionxml).readlines():
-                    if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                        sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                    if re.search("misc", lines):
-                        lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                with open(patchxml, "r+") as newfile:
-                    text = newfile.read()
-                    text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                    text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                    newfile.seek(0)
-                    newfile.write(text)
-                    newfile.truncate()
-
-                print("Erasing userdata without losing internal storage...", end = "")
-                try:
-                    safe_storage = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                    subprocess.call(safe_storage, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "frp":
-                print("Resetting FRP...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting FRP...</span>")
                 try:
-                    erase_frp = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "persistent", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e persistent -memoryname " + storage]
-
-                    subprocess.call(erase_frp, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.frp(port, firehose_loader, storage, "persistent")
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "efs":
-                    print("Backing up EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_" + partition + ".img"
-                            backup_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", partition, "-o", backup_file, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d " + partition + " -o " + backup_file + " -memoryname " + storage]
-
-                            subprocess.call(backup_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
-
-                    print("Resetting EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            erase_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", partition, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e " + partition + " -memoryname " + storage]
-
-                            subprocess.call(erase_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting EFS IMEI...</span>")
+                try:
+                    unlock.efs(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
+                except:
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
 
         if brand_name == "other":
             if command_selected == "userdata":
-                print("Erasing all data...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    erase_userdata = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "userdata", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e userdata -memoryname " + storage]
-
-                    subprocess.call(erase_userdata, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.userdata(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "misc":
-                print("Getting GPT partition...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Erasing userdata...</span>")
                 try:
-                    partitionxml = open(log_path + "/partition.xml", "w")
-                    check_gpt = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-gpt", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -gpt -memoryname " + storage]
-
-                    subprocess.call(check_gpt, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.safe_storage(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return
-
-                xml_path = currentdir + "/data/xml"
-                patchxml = "/patch.xml"
-                if os.path.exists(xml_path + patchxml):
-                    shutil.copyfile(xml_path + patchxml, log_path + patchxml)
-                    patchxml = log_path + patchxml
-                else:
-                    repo_patch = repos + "/raw/additional/data/xml/patch.xml"
-                    request.urlretrieve(repo_patch, temp_path + patchxml)
-                    patchxml = temp_path + patchxml
-
-                for lines in open(partitionxml).readlines():
-                    if re.search("SECTOR_SIZE_IN_BYTES=", lines):
-                        sector_size = re.findall(".*SECTOR_SIZE_IN_BYTES=\"([0-9]*)\".*", lines)[0]
-                    if re.search("misc", lines):
-                        lba_size = re.findall(".*Start LBA:.([0-9]*).*", lines)[0]
-
-                with open(patchxml, "r+") as newfile:
-                    text = newfile.read()
-                    text = re.sub("(SECTOR_SIZE_IN_BYTES=)\".*?\"(.*>)", r'\1"' + sector_size + r'"\2', text)
-                    text = re.sub("(start_sector=)\".*?\"(.*>)", r'\1"' + lba_size + r'"\2', text)
-                    newfile.seek(0)
-                    newfile.write(text)
-                    newfile.truncate()
-
-                print("Erasing userdata without losing internal storage...", end = "")
-                try:
-                    safe_storage = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-x", patchxml, "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -x ", patchxml, " -memoryname " + storage]
-
-                    subprocess.call(safe_storage, stdout = partitionxml, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
-                except:
-                    print("  [ERROR]")
-                    return 1
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "frp":
-                print("Resetting FRP...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting FRP...</span>")
                 try:
-                    erase_frp = \
-                        [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", "frp", "-memoryname", storage] \
-                        if platform.system() == "Windows" else \
-                        [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e frp -memoryname " + storage]
-
-                    subprocess.call(erase_frp, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.frp(port, firehose_loader, storage, "frp")
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "efs":
-                    print("Backing up EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            backup_file = temp_path + "/" + datetime.now().strftime("%d%m%Y_%H%M%S") + "_" + partition + ".img"
-                            backup_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-d", partition, "-o", backup_file, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -d " + partition + " -o " + backup_file + " -memoryname " + storage]
-
-                            subprocess.call(backup_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
-
-                    print("Resetting EFS IMEI...", end = "")
-                    try:
-                        for partition in ["fsg", "modemst1", "modemst2"]:
-                            erase_efs = \
-                                [emmcdl_program, "-p", port, "-f", firehose_loader, "-e", partition, "-memoryname", storage] \
-                                if platform.system() == "Windows" else \
-                                [emmcdl_program + " -p " + port + " -f " + firehose_loader + " -e " + partition + " -memoryname " + storage]
-
-                            subprocess.call(erase_efs, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                        print("  [OK]")
-                    except:
-                        print("  [ERROR]")
-                        return 1
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting EFS IMEI...</span>")
+                try:
+                    unlock.efs(port, firehose_loader, storage)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
+                except:
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
 
         if method_selected == "other":
             if command_selected == "unlock_bl_1":
-                print("Unlocking bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Unlocking bootloader...</span>")
                 try:
-                    fastboot_oem_unlock = \
-                        [fastboot_program, "-s", port, "oem", "unlock"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " oem unlock"]
-
-                    subprocess.call(fastboot_oem_unlock, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.fastboot_unlock_bl_oem(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "unlock_bl_2":
-                print("Unlocking bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Unlocking bootloader...</span>")
                 try:
-                    fastboot_oem_unlock = \
-                        [fastboot_program, "-s", port, "flashing", "unlock"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " flashing unlock"]
-
-                    subprocess.call(fastboot_oem_unlock, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.fastboot_unlock_bl_flashing(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "relock_bl_1":
-                print("Locking bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Locking bootloader...</span>")
                 try:
-                    fastboot_oem_lock = \
-                        [fastboot_program, "-s", port, "oem", "lock"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " oem lock"]
-
-                    subprocess.call(fastboot_oem_lock, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.fastboot_lock_bl_oem(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "relock_bl_2":
-                print("Locking bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Locking bootloader...</span>")
                 try:
-                    fastboot_oem_lock = \
-                        [fastboot_program, "-s", port, "flashing", "lock"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " flashing lock"]
-
-                    subprocess.call(fastboot_oem_lock, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    unlock.fastboot_lock_bl_flashing(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "fastboot_recovery":
-                print("Rebooting to recovery...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to recovery mode...</span>")
                 try:
-                    reboot_recovery = \
-                        [fastboot_program, "-s", port, "reboot-recovery"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " reboot-recovery"]
-
-                    subprocess.call(reboot_recovery, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootrecovery_fastboot(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "fastboot_reboot":
-                print("Rebooting to bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to fastboot mode...</span>")
                 try:
-                    reboot_bootloader = \
-                        [fastboot_program, "-s", port, "reboot-bootloader"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " reboot-bootloader"]
-
-                    subprocess.call(reboot_bootloader, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootbl_fastboot(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "fastboot_edl_1":
-                print("Rebooting to EDL mode...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to EDL mode...</span>")
                 try:
-                    reboot_edl = \
-                        [fastboot_program, "-s", port, "oem", "edl"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " oem edl"]
-
-                    subprocess.call(reboot_edl, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootedl_fastboot_oem(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "fastboot_edl_2":
-                print("Rebooting to EDL mode...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to EDL mode...</span>")
                 try:
-                    reboot_edl = \
-                        [fastboot_program, "-s", port, "reboot-edl"] \
-                        if platform.system() == "Windows" else \
-                        [fastboot_program + " -s " + port + " reboot-edl"]
-
-                    subprocess.call(reboot_edl, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootedl_fastboot(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "fastboot_frp":
                 pass
             elif command_selected == "fastboot_demo_1":
@@ -3036,49 +1526,49 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             elif command_selected == "fastboot_demo_2":
                 pass
             elif command_selected == "adb_recovery":
-                print("Rebooting to recovery...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to recovery mode...</span>")
                 try:
-                    reboot_recovery = \
-                        [adb_program, "-s", port, "reboot", "recovery"] \
-                        if platform.system() == "Windows" else \
-                        [adb_program + " -s " + port + " reboot recovery"]
-
-                    subprocess.call(reboot_recovery, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootrecovery_adb(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "adb_fastboot":
-                print("Rebooting to bootloader...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to fastboot mode...</span>")
                 try:
-                    reboot_bootloader = \
-                        [adb_program, "-s", port, "reboot", "bootloader"] \
-                        if platform.system() == "Windows" else \
-                        [adb_program + " -s " + port + " reboot bootloader"]
-
-                    subprocess.call(reboot_bootloader, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootbl_adb(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "adb_edl":
-                print("Rebooting to EDL mode...", end = "")
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Rebooting to EDL mode...</span>")
                 try:
-                    reboot_edl = \
-                        [adb_program, "-s", port, "reboot", "edl"] \
-                        if platform.system() == "Windows" else \
-                        [adb_program + " -s " + port + " reboot edl"]
-
-                    subprocess.call(reboot_edl, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-                    print("  [OK]")
+                    reboot.rebootedl_adb(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
                 except:
-                    print("  [ERROR]")
-                    return 1
-
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "adb_frp":
-                pass
+                self.progressBar_1.setValue(39)
+                self.progressBar_2.setValue(39)
+                self.log_process_1.append(f"<p><span style=\"color:#ffffff\">Resetting FRP...</span>")
+                try:
+                    unlock.bypassfrp_samadb(port)
+                    self.log_process_1.append(f"<span style=\"color:#00ff00\">OK</span></p>")
+                    self.progressBar_1.setValue(100)
+                    self.progressBar_2.setValue(100)
+                except:
+                    self.log_process_1.append(f"<span style=\"color:#ff0000\">ERROR</span></p><br/>")
             elif command_selected == "adb_erasefrp":
                 pass
             elif command_selected == "adb_pushfrp":
@@ -3088,7 +1578,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def check_port(self):
         self.port_list_1.clear()
-        self.port_list_2.clear()
         adb_devices = \
             [adb_program, "devices"] \
             if platform.system() == "Windows" else \
@@ -3099,12 +1588,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             [fastboot_program + " devices"]
 
         for output in list_ports.comports():
-            if re.search("Qualcomm", str(output)):
-                comport_id = str(output).split(" ")[0]
-                comport_description = re.sub("\(.*\)\>", "", str(output).split(" - ")[1])
-                for result in [comport_id + "  -  " + comport_description]:
-                    self.port_list_1.addItem(result)
-                    self.port_list_2.addItem(result)
+            if platform.system() == "Windows":
+                if re.search("Qualcomm", str(output)):
+                    comport_id = str(output).split(" ")[0]
+                    comport_description = re.sub("\(.*\)\>", "", str(output).split(" - ")[1])
+            else:
+                if re.search("Qualcomm", output.description):
+                    comport_id = output.device
+                    comport_description = output.description
+
+            for result in [comport_id + "  -  " + comport_description]:
+                self.port_list_1.addItem(result)
 
         with subprocess.Popen(adb_devices, shell = True, stdout = subprocess.PIPE) as proc:
             for output in proc.stdout.readlines()[1:-1]:
@@ -3114,7 +1608,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                         adb_description = "Android ADB Interface (" + item + ")"
                         for result in [adb_serial + "  -  " + adb_description]:
                             self.port_list_1.addItem(result)
-                            self.port_list_2.addItem(result)
 
         with subprocess.Popen(fastboot_devices, shell = True, stdout = subprocess.PIPE) as proc:
             for output in proc.stdout.readlines()[1:-1]:
@@ -3123,153 +1616,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     fastboot_description = "Android Bootloader Interface"
                     for result in [fastboot_serial + "  -  " + fastboot_description]:
                         self.port_list_1.addItem(result)
-                        self.port_list_2.addItem(result)
-
-    def open_firmware_edl(self):
-        global openDialogDefined, current_line
-        openDialogDefined = "directory"
-        firmware_exists = []
-
-        self.title = "Select firmware directory"
-        self.outputline = self.directory_line_1
-        self.output_line()
-        self.directory_line_1 = self.outputline
-        if not self.directory_line_1.text():
-            return 1
-        else:
-            for file in os.listdir(self.directory_line_1.text()):
-                if file.endswith(".xml") or file.endswith(".img") or \
-                    file.endswith(".bin") or file.endswith(".mbn") or file.endswith(".elf"):
-                    if re.search("rawprogram.*\.xml", file) or \
-                        re.search("patch.*\.xml", file):
-                        firmware_exists = 1
-
-        if firmware_exists:
-            self.rawprogram_combobox.clear()
-            self.patch_combobox.clear()
-            for file in os.listdir(self.directory_line_1.text()):
-                if re.search("rawprogram.*\.xml", file):
-                    self.rawprogram_label.setEnabled(True)
-                    self.rawprogram_combobox.setEnabled(True)
-                    self.rawprogram_combobox.addItem(file)
-                if re.search("patch.*\.xml", file):
-                    self.patch_label.setEnabled(True)
-                    self.patch_combobox.setEnabled(True)
-                    self.patch_combobox.addItem(file)
-
-                self.update_edl_list()
-        else:
-            self.rawprogram_combobox.clear()
-            self.rawprogram_label.setEnabled(False)
-            self.rawprogram_combobox.setEnabled(False)
-
-            self.patch_combobox.clear()
-            self.patch_label.setEnabled(False)
-            self.patch_combobox.setEnabled(False)
-
-            widgetDialog = QtWidgets.QWidget()
-            msgBox = QtWidgets.QMessageBox(widgetDialog)
-            msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-            msgBox.setText("Invalid firmware directory.")
-            msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msgBox.exec_()
-
-    def update_edl_list(self):
-        slash = "\\" if platform.system() == "Windows" else "/"
-        partitionxml = self.directory_line_1.text() + slash + "partition.xml"
-        patchxml = self.directory_line_1.text() + slash + self.patch_combobox.currentText()
-        rawprogramxml = self.directory_line_1.text() + slash + self.rawprogram_combobox.currentText()
-
-        with open(rawprogramxml, "r").readlines() as lines:
-            if re.search("filename", lines):
-                files = re.findall(".*filename\"([0-9]*)\".*", lines)
-                if files != "":
-                    filename = self.directory_line_1.text() + slash + files
-                    if re.search("label", lines):
-                        partition = re.findall(".*label\"([A-Za-z]*)\".*", lines)
-                    if re.search("start_sector", lines):
-                        start_sector = re.findall(".*start_sector\"([0-9]*)\".*", lines)
-
-    def open_firmware_fastboot(self):
-        global openDialogDefined
-        openDialogDefined = "directory"
-        self.title = "Select firmware directory"
-        self.outputline = self.directory_line_2
-        self.output_line()
-        self.directory_line_2 = self.outputline
-        if not self.directory_line_2.text():
-            return 1
-        else:
-            self.script_combobox.setEnabled(True)
-
-    def open_loader(self):
-        global openDialogDefined
-        openDialogDefined = "file"
-        self.title = "Select firehose loader"
-        self.filter = "firehose loader file (*.elf *.mbn)"
-        self.outputline = self.loaderpath_line
-        self.output_line()
-        self.loaderpath_line = self.outputline
-
-    def open_fileDialog(self):
-        return QtWidgets.QFileDialog.getOpenFileName(None, self.title, None, self.filter)
-
-    def open_directoryDialog(self):
-        return QtWidgets.QFileDialog.getExistingDirectory(None, self.title)
-
-    def output_line(self):
-        if openDialogDefined == "file":
-            self.result = self.open_fileDialog()[0]
-        elif openDialogDefined == "directory":
-            self.result = self.open_directoryDialog()
-
-        if platform.system() == "Windows": self.result = self.result.replace("/", "\\")
-        if self.result:
-            self.outputline.setText(self.result)
-
-    def edl_loader_checked(self):
-        if self.loader_checkbox.isChecked():
-            self.loader_checkbox.setChecked(True)
-            self.loaderpath_line.setEnabled(True)
-            self.browse_loaderpath.setEnabled(True)
-            self.brand_label.setEnabled(False)
-            self.model_label.setEnabled(False)
-            self.storage_label.setEnabled(True)
-            self.brand_combobox.setEnabled(False)
-            self.model_combobox.setEnabled(False)
-            self.storage_combobox.setEnabled(True)
-        else:
-            self.loader_checkbox.setChecked(False)
-            self.loaderpath_line.setEnabled(False)
-            self.browse_loaderpath.setEnabled(False)
-            self.brand_label.setEnabled(True)
-            self.model_label.setEnabled(True)
-            self.storage_label.setEnabled(False)
-            self.brand_combobox.setEnabled(True)
-            self.model_combobox.setEnabled(True)
-            self.storage_combobox.setEnabled(False)
-
-    def update_model_combobox(self):
-        self.brand_combobox.removeItem(self.brand_combobox.findText(""))
-        self.model_combobox.clear()
-
-        if str(self.brand_combobox.currentText()) == "Oppo":
-            lists = self.oppo_device()
-        elif str(self.brand_combobox.currentText()) == "Realme":
-            lists = self.realme_device()
-        elif str(self.brand_combobox.currentText()) == "Vivo":
-            lists = self.vivo_device()
-        elif str(self.brand_combobox.currentText()) == "Xiaomi / Poco":
-            lists = self.xiaomi_poco_device()
-        elif str(self.brand_combobox.currentText()) == "Samsung":
-            lists = [{"no": 0, "device_name": "-", "device_description": "-"}]
-        elif not str(self.brand_combobox.currentText()):
-            self.brand_combobox.setCurrentIndex(self.brand_combobox.findText("Oppo"))
-            lists = self.oppo_device()
-
-        for item in lists:
-            self.model_combobox.addItem(item["device_name"])
-            self.model_combobox.setItemText(item["no"], item["device_description"])
 
     def openManual(self, manualFlashDialog):
         widgetDialog = QtWidgets.QWidget()
@@ -3417,7 +1763,12 @@ class Ui_driverDialog(object):
                 with ZipFile(zip, "r") as source:
                     source.extractall(temp_path)
 
-            subprocess.call(["powershell.exe", "-noprofile", "-command", "Start-Process", "-verb", "runas", "pnputil.exe", "'-i -a'", temp_path + "/" + processor_architecture + "/qcser.inf"])
+            if not ctypes.windll.shell32.IsUserAnAdmin():
+                ctypes.windll.shell32.ShellExecuteW(None, "runas",
+                                                    sys.executable,
+                                                    "pnputil.exe", "'-i -a'",
+                                                    temp_path + "/" + processor_arch + "/qcser.inf",
+                                                    1)
         if self.adb.isChecked():
             zip = currentdir + "/data/drivers/adb_usb.zip"
             if os.path.exists(zip):
@@ -3429,7 +1780,12 @@ class Ui_driverDialog(object):
                 with ZipFile(zip, "r") as source:
                     source.extractall(temp_path)
 
-            subprocess.call(["powershell.exe", "-noprofile", "-command", "Start-Process", "-verb", "runas", "pnputil.exe", "'-i -a'", temp_path + "/android_winusb.inf"])
+            if not ctypes.windll.shell32.IsUserAnAdmin():
+                ctypes.windll.shell32.ShellExecuteW(None, "runas",
+                                                    sys.executable,
+                                                    "pnputil.exe", "'-i -a'",
+                                                    temp_path + "/android_winusb.inf",
+                                                    1)
 
     def threads_registerDriver(self):
         for super_user in ["pkexec", "gksudo", "ksu"]:
@@ -3711,14 +2067,15 @@ scriptfile = os.path.basename(__file__)
 if platform.system() == "Linux" or platform.system() == "Windows":
     repos = "https://github.com/thefirefox12537/qctools_tff"
     currentdir = os.getcwd().replace("\\", "/")
+    ssl._create_default_https_context = ssl._create_unverified_context
 
     license_file = currentdir + "/LICENSE"
-    icon_file = currentdir + "/assets/resources/icons/qctools.png"
+    icon_file = currentdir + "/assets/resources/icons/qctools"
     TFF_image_file = currentdir + "/assets/resources/images/about_qctools.png"
     log_path = currentdir + "/data/log"
     temp_path = currentdir + "/data/log/temp"
     version_info = 1,0
-    build_info = "beta 20220819_0840wib"
+    build_info = "beta 20220820_2120wib"
 
     if platform.system() == "Windows":
         adb_program = ".\\data\\adb.exe"
@@ -3730,9 +2087,9 @@ if platform.system() == "Linux" or platform.system() == "Windows":
         fastboot_program = "./data/fastboot"
 
     for proc in ["i386", "i586", "i686", "ia32", "x86"]:
-        if platform.processor() == proc: processor_architecture = "x86"
+        if platform.processor() == proc: processor_arch = "x86"
     for proc in ["amd64", "x86_64", "ia64", "x64"]:
-        if platform.processor() == proc: processor_architecture = "x64"
+        if platform.processor() == proc: processor_arch = "x64"
 
     if not os.path.exists(adb_program): adb_program = "adb"
     if not os.path.exists(fastboot_program): fastboot_program = "fastboot"

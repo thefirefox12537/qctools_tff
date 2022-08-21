@@ -36,39 +36,47 @@ set cecho=%basedir%\data\cecho.exe
 set downloadbinary=%basedir%\data\emmcdl.exe
 set repos=https://github.com/thefirefox12537/qctools_tff
 
-set protocol=[Enum]::GetNames([Net.SecurityProtocolType])
-set current=[Net.SecurityProtocolType]::Tls12
-
-if %OLD_WIN%?==1?  goto :det_oldwinnt
-
-for %%p in ("powershell.exe") do (
-	if not exist "%%~$PATH:p"  goto :no_powershell
-	set "runpwsh=call %%~np -noprofile -nologo -command"
+if %OLD_WIN%?==1? (
+	goto :det_oldwinnt
 )
 
-for /f "tokens=*" %%a in ('powershell -noprofile -command "%protocol% -notcontains %current%" 2^> nul') do (
-	if /i "%%a"=="true" goto :det_oldpwsh
+for /f "tokens=*" %%p in ('where /r "%basedir%" python.exe 2^> nul') do (
+	if exist "%%~p" set "python=%%~p" && goto :next
+)
+
+if /i "%python%"=="" (
+	echo Requirements:  python
+	endlocal & exit /b
 )
 
 if not exist "%downloadbinary%" (
 	mkdir "%basedir%\data\sources" > nul 2>&1
 	mkdir "%basedir%\data\sources\emmcdl" > nul 2>&1
-	if not exist "%basedir%\data\sources\emmcdl" call %runpwsh% ^
-	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/sources/emmcdl.zip -target '%TMPDIR%\emmcdl.zip';" ^
-	"Extract-Zip -zipfile '%TMPDIR%\emmcdl.zip' -destinationpath '%basedir%\data\sources\emmcdl\';" ^
-	"Remove-Item -force '%TMPDIR%\emmcdl.zip'"
+	if not exist "%basedir%\data\sources\emmcdl" call "%python%" -c "^
+import ssl, urllib.request; ^
+from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('%repos%/raw/additional/data/sources/emmcdl.zip', '%TMPDIR%\emmcdl.zip'^); ^
+with ZipFile('%TMPDIR%\emmcdl.zip', 'r'^) as source: ^
+    source.extractfile('%basedir%\data\sources\emmcdl\'^)"
+	del /q "%TMPDIR%\emmcdl.zip"
 	cd "%basedir%\data\sources\emmcdl"
 
 	for /f "tokens=*" %%v in ('where /r "%Programs%\Microsoft Visual Studio" VsDevCmd.bat 2^> nul') do set VS=%%~v
-	if not exist "!VS!" call %runpwsh% ^
-	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri https://aka.ms/vs/17/release/vs_BuildTools.exe -target '%TMPDIR%\buildtools.exe';" ^
-	"Start-Process -filepath '%TMPDIR%\buildtools.exe'" ^
-	"-argumentlist '--add Microsoft.VisualStudio.Workload.MSBuildTools --quiet'" ^
-	"-wait -windowstyle hidden -verb runas"
+	if not exist "!VS!" call "%python%" -c "^
+import ctypes, sys; ^
+import ssl, urllib.request; ^
+from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('https://aka.ms/vs/17/release/vs_BuildTools.exe', '%TMPDIR%\buildtools.exe'^); ^
+if not ctypes.windll.shell32.IsUserAnAdmin(^): ^
+    ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, ^
+                                        '%TMPDIR%\buildtools.exe', ^
+                                        '--add Microsoft.VisualStudio.Workload.MSBuildTools --quiet', 1^)"
 
-	for /f "tokens=*" %%s in ('type "!VS!" ^| findstr /v /i "exit./B"') do echo %%s >> "%TMPDIR%\tmp_script.bat"
+	for /f "tokens=*" %%s in ('type "!VS!" ^| findstr /v /i "exit./B"') do (
+		echo %%s >> "%TMPDIR%\tmp_script.bat"
+	)
 	call "%TMPDIR%\tmp_script.bat" > nul 2>&1
 	del /q "%TMPDIR%\tmp_script.bat" > nul 2>&1
 
@@ -80,31 +88,26 @@ if not exist "%downloadbinary%" (
 for %%a in ("%basedir%\data\adb.exe" "%basedir%\data\fastboot*.exe") do if not exist "%%~a" set NO_ADB=1
 if defined NO_ADB (
 	mkdir "%basedir%\data" > nul 2>&1
-	call %runpwsh% ^
-	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri https://dl.google.com/android/repository/platform-tools_r28.0.1-windows.zip -target '%TMPDIR%\platform-tools.zip';" ^
-	"Extract-Zip -zipfile '%TMPDIR%\platform-tools.zip' -destinationpath '%temp%\';" ^
-	"Remove-Item -force '%TMPDIR%\platform-tools.zip'"
+	call "%python%" -c "^
+import ssl, urllib.request; from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('https://dl.google.com/android/repository/platform-tools_r28.0.1-windows.zip', '%TMPDIR%\platform-tools.zip'^); ^
+with ZipFile('%TMPDIR%\platform-tools.zip', 'r'^) as source: ^
+    source.extractfile('%temp%\'^)"
+	del /q "%TMPDIR%\platform-tools.zip"
 
-	for %%a in (adb.exe AdbWinApi.dll AdbWinUsbApi.dll fastboot.exe) do move /y "%temp%\platform-tools\%%a" "%basedir%\data" > nul 2>&1
+	for %%a in (adb.exe AdbWinApi.dll AdbWinUsbApi.dll fastboot.exe) do (
+		move /y "%temp%\platform-tools\%%a" "%basedir%\data" > nul 2>&1
+	)
 	rd /s /q "%temp%\platform-tools" > nul 2>&1
 	if not exist "%basedir%\data\adb.exe" goto :no_adb
 )
-
-for %%a in (" " "/r "%basedir%"") do ^
-for /f "tokens=*" %%p in ('where %%~a python.exe 2^> nul') do ^
-if exist "%%~p" set python=%%~p
 
 for /f %%c in ('copy /z "%~f0" nul') do set CR=%%c
 cd "%basedir%"
 
 if not defined ARGS (
 	if exist "%PyQt_script%" (
-		if /i "%python%"=="" (
-			echo Requirements:  python
-			endlocal & exit /b
-		)
-		call "%python%" -m pip install --quiet --upgrade PyQt5 > nul 2>&1
 		call "%python%" -u "%PyQt_script%"
 		endlocal
 		exit /b
@@ -153,23 +156,23 @@ for %%i in (%ARGS:^== %) do (
 		sm_a705f  sm_j415f  sm_j610f  sm_m025f  sm_m115f
 	) do if "%%i"=="%%l"   set DEVICE=%%l
 
-	if "%%i"=="userdata" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="userdata" if %METHOD_ARGS%!==1! (
 		set METHOD=userdata
 		set METHOD_FULL=Factory Reset
 	)
-	if "%%i"=="frp" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="frp" if %METHOD_ARGS%!==1! (
 		set METHOD=frp
 		set METHOD_FULL=Erase FRP
 	)
-	if "%%i"=="efs" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="efs" if %METHOD_ARGS%!==1! (
 		set METHOD=efs
 		set METHOD_FULL=Erase EFS IMEI
 	)
-	if "%%i"=="misc" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="misc" if %METHOD_ARGS%!==1! (
 		set METHOD=misc
 		set METHOD_FULL=Safe format data
 	)
-	if "%%i"=="micloud" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="micloud" if %METHOD_ARGS%!==1! (
 		if not "%SHORT_BRAND%"=="xiaomi" (
 			echo This method only allowed for Xiaomi brands.
 			endlocal & exit /b
@@ -177,21 +180,21 @@ for %%i in (%ARGS:^== %) do (
 		set METHOD=micloud
 		set METHOD_FULL=Erase MiCloud
 	)
-	if "%%i"=="unlock-bl" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="unlock-bl" if %METHOD_ARGS%!==1! (
 		set METHOD=unlock-bl
 		set DO_METHOD=Unlocking
 		set do_method_fastboot=unlock
 		set METHOD_FULL=Unlock bootloader
 		set RUN_BL=1
 	)
-	if "%%i"=="relock-bl" if %METHOD_ARGS% EQU 1 (
+	if "%%i"=="relock-bl" if %METHOD_ARGS%!==1! (
 		set METHOD=relock-bl
 		set DO_METHOD=Locking
 		set do_method_fastboot=lock
 		set METHOD_FULL=Lock bootloader
 		set RUN_BL=1
 	)
-	if "%%i"=="help" if %METHOD_ARGS% EQU 1 goto :show_help_method
+	if "%%i"=="help" if %METHOD_ARGS%!==1! goto :show_help_method
 )
 
 if defined DEVICE      call :%DEVICE%
@@ -201,8 +204,8 @@ if not defined METHOD       goto :no_options
 if not defined NAME         goto :no_device
 
 call :caption
-if %REBOOT_EDL% EQU 1  goto :reboot_edl
-if %RUN_BL% EQU 1      goto :process_bootloader
+if %REBOOT_EDL%!==1!  goto :reboot_edl
+if %RUN_BL%!==1!      goto :process_bootloader
 call :execution
 
 for %%r in (
@@ -246,9 +249,10 @@ if %ERRORLEVEL% EQU 0 (
 	) else (
 		set "repofile=%%~s"
 		set "repofile=!repofile:\=/!"
-		call %runpwsh% ^
-		"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-		"Download-Manager -uri %repos%/raw/additional/data/!repofile! -target '%TMPDIR%\%%~nxs'"
+		call "%python%" -c "^
+import ssl, urllib.request; from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('%repos%/raw/additional/data/!repofile!', '%TMPDIR%\%%~nxs'^)"
 	)
 	"%cecho%" [ {0A}OK{#} ]   Downloading from server . . .
 )
@@ -340,12 +344,25 @@ call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -e frp -memoryname %type% %
 exit /b
 
 :process_misc
-set PATCHXML=%TMPDIR%\patch.xml
-set MODPATCH=%TMPDIR%\patch_mod.xml
+copy "%TMPDIR%\patch.xml" "%TMPDIR%\patch_mod.xml" > nul 2>&1
 for /f "tokens=2 skip=1 delims=SECTOR_SIZE_IN_BYTES= " %%a in ('findstr /i "SECTOR_SIZE_IN_BYTES" "%TMPDIR%\partition.xml"') do ^
-call %runpwsh% (get-content '%PATCHXML%'^) -replace '(SECTOR_SIZE_IN_BYTES=").*?(".*^>^)' '${1}%%a${2}' > "%TMPDIR%\patch_mod.xml"
+call "%python%" -c "^
+import re; ^
+with open('%TMPDIR%\patch_mod.xml', 'r+'^) as newfile: ^
+    text = newfile.read(^); ^
+    text = re.sub('(SECTOR_SIZE_IN_BYTES=^)".*?"(.*^>^)', r'\1"%%a"\2', text^); ^
+    newfile.seek(0^); ^
+    newfile.write(text^); ^
+    newfile.truncate(^)"
 for /f "tokens=7 " %%b in ('findstr /i "misc" "%TMPDIR%\partition.xml"') do ^
-call %runpwsh% (get-content '%MODPATCH%'^) -replace '(start_sector=").*?(".*^>^)', '${1}%%b${2}' > "%TMPDIR%\patch_mod.xml"
+call "%python%" -c "^
+import re; ^
+with open('%TMPDIR%\patch_mod.xml', 'r+'^) as newfile: ^
+    text = newfile.read(^); ^
+    text = re.sub('(start_sector=^)".*?"(.*^>^)', r'\1"%%b"\2', text^); ^
+    newfile.seek(0^); ^
+    newfile.write(text^); ^
+    newfile.truncate(^)"
 set /p "=[ * ]   Erasing userdata . . .!_CR!" < nul
 call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -x "%TMPDIR%\patch_mod.xml" -memoryname %type% %QUIET%
 "%cecho%" [ {0A}OK{#} ]  Erasing userdata . . .
@@ -397,12 +414,25 @@ if %RUN_BL% EQU 1 (
 	call "%basedir%\data\fastboot.exe" flashing %command% %QUIET%
 	"%cecho%" [ {0A}OK{#} ]  %DO_METHOD% bootloader . . .
 ) else (
-	set PATCHXML=%TMPDIR%\%SHORT_BRAND%-%METHOD%-patch.xml
-	set MODPATCH=%TMPDIR%\patch_mod.xml
+	copy "%TMPDIR%\%SHORT_BRAND%-%METHOD%-patch.xml" "%TMPDIR%\patch_mod.xml" > nul 2>&1
 	for /f "tokens=2 skip=1 delims=SECTOR_SIZE_IN_BYTES= " %%a in ('findstr /i "SECTOR_SIZE_IN_BYTES" "%TMPDIR%\partition.xml"') do ^
-	call %runpwsh% (get-content '%PATCHXML%'^) -replace '(SECTOR_SIZE_IN_BYTES=").*?(".*^>^)' '${1}%%a${2}' > "%TMPDIR%\patch_mod.xml"
+	call "%python%" -c "^
+import re; ^
+with open('%TMPDIR%\patch_mod.xml', 'r+'^) as newfile: ^
+    text = newfile.read(^); ^
+    text = re.sub('(SECTOR_SIZE_IN_BYTES=^)".*?"(.*^>^)', r'\1"%%a"\2', text^); ^
+    newfile.seek(0^); ^
+    newfile.write(text^); ^
+    newfile.truncate(^)"
 	for /f "tokens=7 " %%b in ('findstr /i "devinfo" "%TMPDIR%\partition.xml"') do ^
-	call %runpwsh% (get-content '%MODPATCH%'^) -replace '(start_sector=").*?(".*^>^)' '${1}%%b${2}' > "%TMPDIR%\patch_mod.xml"
+	call "%python%" -c "^
+import re; ^
+with open('%TMPDIR%\patch_mod.xml', 'r+'^) as newfile: ^
+    text = newfile.read(^); ^
+    text = re.sub('(start_sector=^)".*?"(.*^>^)', r'\1"%%b"\2', text^); ^
+    newfile.seek(0^); ^
+    newfile.write(text^); ^
+    newfile.truncate(^)"
 	set /p "=[ * ]   Backing up devinfo . . .!_CR!" < nul
 	call "%downloadbinary%" -p %COMPORT% -f "%firehose%" -d devinfo "%backup_devinfo%" -memoryname %type% %QUIET%
 	"%cecho%" [ {0A}OK{#} ]  Backing up devinfo . . .
@@ -440,15 +470,17 @@ set "ALREADY=1" || (
 	mkdir "%basedir%\data\drivers\qcser" > nul 2>&1
 
 	echo Installing Qualcomm HS-USB QLoader driver . . .
-	if not exist "%basedir%\data\drivers\qcser" %runpwsh% ^
-	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/drivers/qcser.zip -target '%TMPDIR%\qcser.zip';" ^
-	"Extract-Zip -zipfile '%TMPDIR%\qcser.zip' -destinationpath '%basedir%\data\drivers\qcser\'"
-
-	%runpwsh% ^
-	"Start-Process -filepath pnputil.exe" ^
-	"-argumentlist '-i -a "%basedir%\data\drivers\qcser\%ARCH%\qcser.inf"'" ^
-	"-wait -windowstyle hidden -verb runas"
+	if not exist "%basedir%\data\drivers\qcser" call "%python%" -c "^
+import ctypes, sys; ^
+import ssl, urllib.request; from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('%repos%/raw/additional/data/drivers/qcser.zip', '%TMPDIR%\qcser.zip'^); ^
+with ZipFile('%TMPDIR%\qcser.zip', 'r'^) as source: ^
+    source.extractfile('%basedir%\data\drivers\qcser\'^); ^
+if not ctypes.windll.shell32.IsUserAnAdmin(^): ^
+    ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, ^
+                                        'pnputil.exe', ^
+                                        '-i -a "%basedir%\data\drivers\qcser\%ARCH%\qcser.inf"', 1^)"
 	del /q "%TMPDIR%\qcser.zip" > nul 2>&1
 )
 
@@ -458,15 +490,17 @@ set "ALREADY=1" || (
 	mkdir "%basedir%\data\drivers\adb_usb" > nul 2>&1
 
 	echo Installing Android Debug Bridge USB driver . . .
-	if not exist "%basedir%\data\drivers\adb_usb" %runpwsh% ^
-	"Invoke-Expression (((Get-Content "%~sf0" | Select-String '^::/') -replace '::/') | Out-String);" ^
-	"Download-Manager -uri %repos%/raw/additional/data/drivers/adb_usb.zip -target '%TMPDIR%\adb_usb.zip';" ^
-	"Extract-Zip -zipfile '%TMPDIR%\adb_usb.zip' -destinationpath '%basedir%\data\drivers\adb_usb\'"
-
-	%runpwsh% ^
-	"Start-Process -filepath pnputil.exe" ^
-	"-argumentlist '-i -a "%basedir%\data\drivers\adb_usb\android_winusb.inf"'" ^
-	"-wait -windowstyle hidden -verb runas"
+	if not exist "%basedir%\data\drivers\adb_usb" call "%python%" -c "^
+import ctypes, sys; ^
+import ssl, urllib.request; from zipfile import ZipFile; ^
+ssl._create_default_https_context = ssl._create_unverified_context; ^
+urllib.request.urlretrieve('%repos%/raw/additional/data/drivers/adb_usb.zip', '%TMPDIR%\adb_usb.zip'^); ^
+with ZipFile('%TMPDIR%\adb_usb.zip', 'r'^) as source: ^
+    source.extractfile('%basedir%\data\drivers\adb_usb\'^); ^
+if not ctypes.windll.shell32.IsUserAnAdmin(^): ^
+    ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, ^
+                                        'pnputil.exe', ^
+                                        '-i -a "%basedir%\data\drivers\adb_usb\android_winusb.inf"', 1^)"
 	del /q "%TMPDIR%\adb_usb.zip" > nul 2>&1
 )
 
@@ -474,20 +508,6 @@ if defined ALEADY (
 	echo Drivers already installed.
 )
 exit /b
-
-:powershell_hybrid
-::/ function Download-Manager {
-::/     param ([Uri]$Uri, [string]$Target)
-::/     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-::/     $WebClient = New-Object Net.WebClient
-::/     $WebClient.DownloadFile($Uri, $Target) | Out-Null
-::/ }
-::/
-::/ function Extract-Zip {
-::/     param ([string]$ZipFile, [string]$DestinationPath)
-::/     Add-Type -AssemblyName "System.IO.Compression.FileSystem" | Out-Null
-::/     [IO.Compression.ZipFile]::ExtractToDirectory($ZipFile, $DestinationPath) | Out-Null
-::/ }
 
 
 :: ######################################################################################################### ::
@@ -524,7 +544,7 @@ exit /b
 :show_credits
 echo TFF/QC Tools for Windows
 echo Unlock and flash the Android phone devices.
-echo Version report:  1.0 revision 2
+echo Version report:  1.0 revision 3
 echo.
 echo This script developed by Faizal Hamzah [The Firefox Flasher].
 echo Licensed under the MIT License.
@@ -1467,6 +1487,15 @@ elif [[ $(uname -sr) < "Linux 4.4"* ]]; then
 	exit 1
 fi
 
+command -v python >/dev/null || {
+	echo "Requirements:  python"
+	exit 1
+}
+for reqs in pyserial pyusb colorama; do
+	python -m pip list 2>&1 | grep "$reqs" >/dev/null || \
+	python -m pip install --quiet --upgrade $reqs >/dev/null 2>&1
+done
+
 if [ ! -d "$TMPDIR" ]; then mkdir -p "$TMPDIR"; fi
 if [ ! -x "$downloadbinary" ] ; then
 	mkdir -p "$basedir/data/sources" >/dev/null 2>&1
@@ -1527,15 +1556,16 @@ current_time() {
 execution() {
 	if [ -z $COMPORT ]; then
 		echo $'[ * ]   Searching port connected . . . \r'
-		lsusb 2>&1 | grep "Qualcomm.*USB" >/dev/null || {
+		for port_connected in "$(python -c "
+import re, serial.tools.list_ports;
+for ports in serial.tools.list_ports():
+	if re.search("Qualcomm.*USB", ports.description):
+		print(ports.device)" 2>/dev/null)"; do
+		[ "$port_connected" == "" ] && {
 			printf "%s\n" $'\n'"Error:  Qualcomm HS-USB port not detected."$'\n'
 			exit 1
-		}
-		for (( a=1; a <= 100; a++ )); do
-		for port_connected in \
-		"$(dmesg | awk '/tty/ && /USB/ {print "/dev/"$1$a}' | tail -1)"; do
-		[ "$port_connected" == "" ] || COMPORT="$port_connected"
-		done; done
+		} || COMPORT="$port_connected"
+		done
 		echo $'[ \e[1;32mOK\e[0m ]   Searching port connected . . . '
 	fi
 	echo $'Port:   '$COMPORT
@@ -1803,7 +1833,7 @@ show_credits() {
 	printf "%s" "\
 TFF/QC Tools for Linux
 Unlock and flash the Android phone devices.
-Version report:  1.0 revision 2
+Version report:  1.0 revision 3
 
 This script developed by Faizal Hamzah [The Firefox Flasher].
 Licensed under the MIT License.
@@ -2715,10 +2745,6 @@ done
 
 if [[ -z "$ARGS" ]]; then
 	[ -f "$PyQt_script" ] && {
-		command -v python >/dev/null || {
-			echo "Requirements:  python"
-			exit 1
-		}
 		python -m pip list 2>&1 | grep "PyQt5" >/dev/null || \
 		python -m pip install --quiet --upgrade PyQt5 >/dev/null 2>&1
 		python -u "$PyQt_script"

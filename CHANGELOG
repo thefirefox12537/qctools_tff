@@ -2,11 +2,11 @@
 ## 1.0
 
 1. Initial released
-1. Added feature: Erase userdata
-1. Added feature: Erase FRP
-1. Added feature: Safe format data
-1. Added feature: Erase EFS
-1. Added feature: Erase MiCloud
+2. Added feature: Erase userdata
+3. Added feature: Erase FRP
+4. Added feature: Safe format data
+5. Added feature: Erase EFS
+6. Added feature: Erase MiCloud
 
 **Device commited:**
 #### Oppo / Realme:
@@ -82,11 +82,12 @@
    | sm_m025f               | Samsung Galaxy M02s     |
    | sm_m115f               | Samsung Galaxy M11      |
 
+
 ## 1.0 revision 1
 
 1. Fix code
-1. Added feature:  ADB and Fastboot
-1. Added feature:  Reboot to EDL
+2. Added feature:  ADB and Fastboot
+3. Added feature:  Reboot to EDL
 
 **Device update commited:**
 #### Oppo / Realme:
@@ -138,17 +139,44 @@
    | note9s_curtana         | Xiaomi Redmi Note 9S     |
    | note9pro_joyeuse       | Xiaomi Redmi Note 9 Pro  |
 
+
 ## 1.0 revision 2 (GUI mode version: 1.0 beta 20220819_0840wib)
 
 1. Fix code
-1. Added feature:  Unlock and lock bootloader
-1. Added feature:  New GUI has been made. But it's beta version.
-<img src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/>
+2. Added feature:  Unlock and lock bootloader
+3. Added feature:  New GUI has been made. But it's beta version.
+
+Bug issues:
+1. Flash EDL mode and Fastboot mode (Downloader menu) can't be used at this time.
+2. Log process on the terminal.
+3. Stop button can't be used at this time.
+
+Coming soon:
+1. Testpoint menu
+2. Manual menu
 
 **Device update commited:**
-
 #### Xiaomi / Poco:
 
    | Codename         | Description                |
    |:-----------------|:---------------------------|
    | note7_lavender   | Xiaomi Redmi Note 7        |
+
+
+## 1.0 revision 3 (GUI mode version: 1.0 beta 20220820_2120wib)
+
+1. Fix COM port detection (Linux)
+2. Fix command line arguments (Windows)
+3. Fix log QTextEdit process
+4. Script smaller, stored on local module
+5. Now for Windows have Python portable (version 3.8.9 32-bit). Supported Windows 7
+
+Bug issues:
+1. Flash EDL mode and Fastboot mode (Downloader menu) can't be used at this time.
+2. Stop button can't be used at this time.
+3. Thread process.
+4. emmcdl is not compatible on another distribution. You must recompile emmcdl before using them.
+
+Coming soon:
+1. Testpoint menu
+2. Manual menu

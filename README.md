@@ -1,8 +1,16 @@
 # TFF/QC Tools
 Unlock and flash the Android phone device
-<img src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/> <img src="assets/resources/images/command_line.png" alt="Command Line mode" width="50%"/>
+
+<img alt="GUI mode" src="assets/resources/images/gui_mode.png" alt="GUI mode (Beta version)" width="50%"/>
+<img alt="CLI mode" src="assets/resources/images/command_line.png" alt="Command Line mode" width="50%"/>
+
+<noscript><a href="https://liberapay.com/thefirefox12537/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
+
+## Download:
+[Click here](https://github.com/thefirefox12537/qctools_tff/archive/refs/heads/master.zip)
 
 ## How to using this script:
+CLI mode:
 ```
 $ ./qctools --help
 USAGE:  ./qctools <device> [OPTION]...
@@ -16,6 +24,11 @@ USAGE:  ./qctools <device> [OPTION]...
         --version            show script file version and credits
 
 To see device list, type  ./qctools --list-available
+```
+
+GUI mode:
+```
+$ ./qctools
 ```
 
 List command:
@@ -43,7 +56,7 @@ Error:  Qualcomm HS-USB port not detected.
 
 ```
 ```
-$ ./qctools a53_cph2127 --method=frp
+$ ./qctools oppo_a53_cph2127 --method=frp
 
 Selected Model:    Oppo A53 (CPH-2127)
 Selected Brand:    Oppo/Realme
@@ -62,7 +75,7 @@ Operation:         Reboot to EDL mode
 [ * ]   Rebooting device to EDL mode . . .
 ```
 
-## Changelog:
+## Changelog:stop
 
 See changelog [here](https://github.com/thefirefox12537/qctools_tff/blob/master/CHANGELOG)
 
@@ -71,14 +84,14 @@ See changelog [here](https://github.com/thefirefox12537/qctools_tff/blob/master/
 $ ./qctools --version
 TFF/QC Tools
 Unlock and flash the Android phone devices.
-Version report:  1.0 revision 2
+Version report:  1.0 revision 3
 
 This script developed by Faizal Hamzah [The Firefox Flasher].
 Licensed under the MIT License.
 
 Credits:
-    [nijel8](https://github.com/nijel8)            Developer of emmcdl
-    [bkerler](https://github.com/bkerler)           Developer of Qualcomm Firehose Attacker
-    [Hari Sulteng](https://fb.com/haryflasher)      Owner of Qualcomm GSM Sulteng
-    [Hadi Khoirudin](https://fb.com/f.hadikhoir)    Software engineer
+    nijel8            Developer of emmcdl
+    bkerler           Developer of Qualcomm Firehose Attacker
+    Hari Sulteng      Owner of Qualcomm GSM Sulteng
+    Hadi Khoirudin    Software engineer
 ```
