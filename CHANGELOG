@@ -149,12 +149,20 @@
 Bug issues:
 1. Flash EDL mode and Fastboot mode (Downloader menu) can't be used at this time.
 2. Log process on the terminal.
+<<<<<<< HEAD
 3. Stop button can't be used at this time.
 
 Coming soon:
 1. Testpoint menu
 2. Manual menu
 
+=======
+
+Coming soon:
+1. Testpoint menu
+2. Manual menu
+
+>>>>>>> 4b16bed78310a50ed86da766224395e0c811fa59
 **Device update commited:**
 #### Xiaomi / Poco:
 
